@@ -7,6 +7,7 @@ import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFi
 function Tasks() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
+  const [editedTask, setEditedTask] = useState({ name: '', dueDate: null });
   const [completedTasks, setCompletedTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
@@ -15,6 +16,8 @@ function Tasks() {
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
+  const [editedTaskIndex, setEditedTaskIndex] = useState(null);
+const [editedTaskContent, setEditedTaskContent] = useState('');
 
   useEffect(() => {
     const handleClickOutsideContextMenu = (e) => {
@@ -45,7 +48,9 @@ function Tasks() {
     if (action === 'delete') {
       handleDelete(index, isCompletedTask);
     } else if (action === 'edit') {
-      // Implement edit functionality
+      const selectedTask = tasks[selectedTaskIndex];
+      setEditedTask({ name: selectedTask.name, dueDate: selectedTask.dueDate });
+      setEditedTaskIndex(selectedTaskIndex); 
     } else if (action === 'complete') {
       handleToggleDone(index, isCompletedTask);
     } else if (action === 'important') {
@@ -75,6 +80,18 @@ function Tasks() {
       setDueDate(null);
       setDueDateOption(''); 
     }
+  };
+
+  const handleEditTask = (index, content) => {
+    setEditedTaskIndex(index);
+    setEditedTaskContent(content);
+  };
+  
+  const handleUpdateTask = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].name = editedTaskContent;
+    setTasks(updatedTasks);
+    setEditedTaskIndex(null);
   };
 
   const handleDelete = (index, isCompletedTask) => {
@@ -160,33 +177,32 @@ function Tasks() {
             <ListGroup>
               {filteredTasks.map((task, index) => (
                 <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item" onContextMenu={(e) => handleContextMenu(e, index, false)}>
-                  <div className="d-flex align-items-center">
-                    <FormCheck
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => handleToggleDone(index)}
-                      className="fs-5 me-2"
+                  {editedTaskIndex === index ? (
+                    <Form.Control
+                      type="text"
+                      value={editedTaskContent}
+                      onChange={(e) => setEditedTaskContent(e.target.value)}
+                      onBlur={() => handleUpdateTask(index)}
                     />
-                    <span style={{ textDecoration: task.done ? 'line-through' : 'none' }}>{task.name}</span>
-                  </div>
+                  ) : (
+                    <div className="d-flex align-items-center">
+                      <FormCheck
+                        type="checkbox"
+                        checked={task.done}
+                        onChange={() => handleToggleDone(index)}
+                        className="fs-5 me-2"
+                      />
+                      <span
+                        style={{ textDecoration: task.done ? 'line-through' : 'none' }}
+                        onClick={() => handleEditTask(index, task.name)}
+                      >
+                        {task.name}
+                      </span>
+                    </div>
+                  )}
                   <div>
-                    <span className="me-2">
-                      {task.dueDate &&
-                        (format(task.dueDate, 'dd MMM') === format(new Date(), 'dd MMM')
-                          ? 'Today'
-                          : format(task.dueDate, 'dd MMM') === format(new Date().getTime() + 24 * 60 * 60 * 1000, 'dd MMM')
-                          ? 'Tomorrow'
-                          : format(task.dueDate, 'EEE, dd MMM'))}
-                    </span>
-                    <Button
-                      variant="link"
-                      onClick={() => handleToggleImportant(index)}
-                      style={{ color: task.important ? '#ffc107' : '#6c757d' }}
-                    >
-                      {task.important ? <BsStarFill /> : <BsStar />}
-                    </Button>
-                    <Button style={{ backgroundColor: '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)}>
-                      <BsTrash />
+                    <Button className="ms-2 border-0" style={{ background: '#5E1B89' }}>
+                      <span className="text-white">Save</span>
                     </Button>
                   </div>
                 </ListGroup.Item>
