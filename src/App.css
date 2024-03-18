@@ -88,3 +88,7 @@
 .task-item:hover {
   background-color: #f8f9fa;
 }
+
+.date-picker-wrapper .react-datepicker__input-container input {
+  max-width: 110px; 
+}
