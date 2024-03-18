@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import { InputGroup, Form, Button, ListGroup, FormCheck, Dropdown } from 'react-bootstrap';
@@ -12,9 +12,46 @@ function Tasks() {
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [setDueDateOption] = useState('');
   const [dueDate, setDueDate] = useState(null);
+  const [contextMenuVisible, setContextMenuVisible] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutsideContextMenu = (e) => {
+      if (!e.target.closest('.context-menu')) {
+        setContextMenuVisible(false);
+      }
+    };
+
+    window.addEventListener('click', handleClickOutsideContextMenu);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutsideContextMenu);
+    };
+  }, [contextMenuVisible]);
 
   const handleChange = (e) => {
     setTask(e.target.value);
+  };
+
+  const handleContextMenu = (e, index, isCompletedTask) => {
+    e.preventDefault();
+    setContextMenuPosition({ x: e.clientX, y: e.clientY });
+    setContextMenuVisible(true);
+    setSelectedTaskIndex(index);
+  };
+
+  const handleContextMenuAction = (action, index, isCompletedTask) => {
+    if (action === 'delete') {
+      handleDelete(index, isCompletedTask);
+    } else if (action === 'edit') {
+      // Implement edit functionality
+    } else if (action === 'complete') {
+      handleToggleDone(index, isCompletedTask);
+    } else if (action === 'important') {
+      handleToggleImportant(index, isCompletedTask);
+    }
+    setContextMenuVisible(false);
   };
 
   const handleDueDateOption = (option) => {
@@ -57,24 +94,27 @@ function Tasks() {
   };
 
   const handleToggleDone = (index, isCompletedTask) => {
-    if (isCompletedTask) {
-      const updatedCompletedTasks = [...completedTasks];
-      updatedCompletedTasks[index].done = !updatedCompletedTasks[index].done;
-      if (!updatedCompletedTasks[index].done) {
-        const taskToMoveBack = updatedCompletedTasks.splice(index, 1)[0];
-        setTasks([...tasks, taskToMoveBack]);
-      }
-      setCompletedTasks(updatedCompletedTasks);
-    } else {
-      const updatedTasks = [...tasks];
-      updatedTasks[index].done = !updatedTasks[index].done;
-      if (updatedTasks[index].done) {
-        const taskToMove = updatedTasks.splice(index, 1)[0];
-        setCompletedTasks([...completedTasks, taskToMove]);
-      }
-      setTasks(updatedTasks);
+  if (isCompletedTask) {
+    const updatedCompletedTasks = [...completedTasks];
+    updatedCompletedTasks[index].done = !updatedCompletedTasks[index].done;
+    if (!updatedCompletedTasks[index].done) {
+      const taskToMoveBack = updatedCompletedTasks.splice(index, 1)[0];
+      setTasks([...tasks, taskToMoveBack]);
     }
-  };
+    setCompletedTasks(updatedCompletedTasks);
+  } else {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].done = !updatedTasks[index].done;
+    if (updatedTasks[index].done) {
+      const taskToMove = updatedTasks.splice(index, 1)[0];
+      setCompletedTasks([...completedTasks, taskToMove]);
+    } else {
+      const taskToMoveBack = updatedTasks.splice(index, 1)[0];
+      setTasks([...updatedTasks, taskToMoveBack]);
+    }
+    setTasks(updatedTasks);
+  }
+};
 
   const filteredTasks = tasks.filter((task) =>
     task.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -119,7 +159,7 @@ function Tasks() {
             {/* list of tasks added */}
             <ListGroup>
               {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item" onContextMenu={(e) => handleContextMenu(e, index, false)}>
                   <div className="d-flex align-items-center">
                     <FormCheck
                       type="checkbox"
@@ -234,6 +274,25 @@ function Tasks() {
           </Form.Group>
         </Form>
       </div>
+      {contextMenuVisible && (
+        <div className="context-menu" style={{ position: 'fixed', top: contextMenuPosition.y, left: contextMenuPosition.x, backgroundColor: '#ffffff', border: '1px solid #ccc', borderRadius: '10px', boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1)' }}>
+          <ul className="list-group" style={{ borderRadius: '10px' }}>
+            <Button className="list-group-item border-0"  onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)}>
+              Delete
+            </Button>
+            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
+              Edit
+            </Button>
+            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('complete', selectedTaskIndex, false)}>
+              {tasks[selectedTaskIndex]?.done ? 'Mark as Incomplete' : 'Mark as Complete'}
+            </Button>
+            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('important', selectedTaskIndex, false)}>
+              {tasks[selectedTaskIndex]?.important ? 'Unmark as Important' : 'Mark as Important'}
+            </Button>
+          </ul>
+        </div>
+      )}
+
     </>
   );
 }
