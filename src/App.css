@@ -75,3 +75,8 @@
   background-color: #D84315;
   border-color: #D84315;
 }
+
+.btn-primary:hover {
+  background-color: #7C2CAB; 
+  border-color: #7C2CAB;
+}

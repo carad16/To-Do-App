@@ -2,9 +2,7 @@ import { useState } from 'react';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import SidebarMenu from 'react-bootstrap-sidebar-menu';
 import Button from 'react-bootstrap/Button';
-import Nav from 'react-bootstrap/Nav';
-import { BsStar, BsTrash, BsPlus } from 'react-icons/bs';
-import { FaBriefcase, FaUserAlt } from 'react-icons/fa'
+import { BsStar, BsTrash, BsPlus, BsHouseDoor } from 'react-icons/bs';
 import { Link } from "react-router-dom";
 
 function Sidebar() {
@@ -15,22 +13,12 @@ function Sidebar() {
   ]);
   const [newCategoryName, setNewCategoryName] = useState('');
 
-  const handleClose = () => setShow(false);
-
   const sidebarStyle = {
     background: 'linear-gradient(180deg, rgba(94,27,137,1) 0%, rgba(157,113,188,1) 29%, rgba(255,127,77,1) 100%), rgb(94, 27, 137)',
     color: 'white',
     width: '250px',
     borderTopRightRadius: '15px',
   };
-
-  const navigation = [
-    { name: 'Task', href: '/task', current: true },
-    { name: 'Important', href: '/important', current: false },
-    { name: 'Recently Deleted', href: '/recentlydeleted', current: false },
-    { name: 'Work', href: '/work', current: false },
-    { name: 'Personal', href: '/personal', current: false },
-  ]
 
   const handleAddCategory = () => {
     if (newCategoryName.trim() !== '') {
@@ -55,30 +43,22 @@ function Sidebar() {
     setIsHovered(false);
   };
 
-  const handleDeleteCategory = (id) => {
-    setCategories(categories.filter(category => category.id !== id));
-  };
-
-  const handleCategoryNameChange = (id, newName) => {
-    setCategories(categories.map(category => category.id === id ? { ...category, name: newName } : category));
-  };
-
   return (
-    <Offcanvas show={show} onHide={handleClose} className="sidebar-offcanvas" backdrop={false} style={sidebarStyle}>
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title className="text-white fw-bolder">To-Do App</Offcanvas.Title>
+    <div className="sidebar-offcanvas p-3" style={sidebarStyle}>
+      <Offcanvas.Header>
+        <Offcanvas.Title className="text-white fw-bolder mb-3 mt-2">To-Do App</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body>
-        <div className="fw-bold">
+      <div>
+        <div className="fw-bold text-left">
           <SidebarMenu.Nav.Title>
             All to-dos
           </SidebarMenu.Nav.Title>
         </div>
         <hr className="bg-light mb-1 mt-2 text-left" />
         <div className="d-grid gap-1">
-          <Link to="/task" className="hover-link p-2" variant="primary mb-2" size="sm">
+          <Link to="/tasks" className="hover-link p-2" variant="primary mb-2" size="sm">
             <div className="d-flex align-items-center">
-              <BsStar className="me-2"/> 
+              <BsHouseDoor className="me-2"/> 
               Tasks
             </div>
           </Link>
@@ -95,7 +75,7 @@ function Sidebar() {
             </div>
           </Link>
         </div>
-        <div className="mt-3 fw-bold">
+        <div className="mt-3 fw-bold text-left">
           <SidebarMenu.Nav.Title>
             Categories
           </SidebarMenu.Nav.Title>
@@ -143,8 +123,8 @@ function Sidebar() {
             </div>
           </Link>
         </div>
-      </Offcanvas.Body>
-    </Offcanvas>
+      </div>
+    </div>
   );
 }
 
