@@ -25,9 +25,9 @@ function Important() {
   return (
     <Container>
       <Row className="mt-2">
-        <Col md={{ span: 6, offset: 3 }}>
-          <h1 className="mb-4 text-left">To-Do List</h1>
-          <Form className="d-flex mt-2 text-left" onSubmit={handleSubmit}>
+        <Col md={{ span: 6, offset: 3 }} className="text-left">
+        <h1 className="mb-4 text-left #5E1B89">To-Do List</h1>
+          <Form className="d-flex mt-2" onSubmit={handleSubmit}>
             <Form.Group controlId="taskInput">
               <Form.Control
                 type="text"
