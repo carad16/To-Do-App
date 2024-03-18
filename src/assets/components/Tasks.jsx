@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { InputGroup, Form, Button, ListGroup, FormCheck } from 'react-bootstrap';
-import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill } from 'react-icons/bs';
+import { format } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import { InputGroup, Form, Button, ListGroup, FormCheck, Dropdown } from 'react-bootstrap';
+import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill, BsCalendar3 } from 'react-icons/bs';
 
 function Tasks() {
   const [task, setTask] = useState('');
@@ -8,16 +10,33 @@ function Tasks() {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
+  const [setDueDateOption] = useState('');
+  const [dueDate, setDueDate] = useState(null);
 
   const handleChange = (e) => {
     setTask(e.target.value);
   };
 
+  const handleDueDateOption = (option) => {
+    setDueDateOption(option);
+    if (option === 'today') {
+      setDueDate(new Date());
+    } else if (option === 'tomorrow') {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setDueDate(tomorrow);
+    } else {
+      setDueDate(null);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (task.trim() !== '') {
-      setTasks([...tasks, { name: task, done: false, important: false }]);
-      setTask('');
+      setTasks([...tasks, { name: task, done: false, important: false, dueDate }]);
+      setTask('')
+      setDueDate(null);
+      setDueDateOption(''); 
     }
   };
 
@@ -100,7 +119,7 @@ function Tasks() {
             {/* list of tasks added */}
             <ListGroup>
               {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
                   <div className="d-flex align-items-center">
                     <FormCheck
                       type="checkbox"
@@ -111,6 +130,14 @@ function Tasks() {
                     <span style={{ textDecoration: task.done ? 'line-through' : 'none' }}>{task.name}</span>
                   </div>
                   <div>
+                    <span className="me-2">
+                      {task.dueDate &&
+                        (format(task.dueDate, 'dd MMM') === format(new Date(), 'dd MMM')
+                          ? 'Today'
+                          : format(task.dueDate, 'dd MMM') === format(new Date().getTime() + 24 * 60 * 60 * 1000, 'dd MMM')
+                          ? 'Tomorrow'
+                          : format(task.dueDate, 'EEE, dd MMM'))}
+                    </span>
                     <Button
                       variant="link"
                       onClick={() => handleToggleImportant(index)}
@@ -148,7 +175,7 @@ function Tasks() {
             {/* list of completed tasks */}
             <ListGroup>
               {filteredCompletedTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
                   <div className="d-flex align-items-center">
                     <FormCheck
                       type="checkbox"
@@ -182,7 +209,26 @@ function Tasks() {
               onChange={handleChange}
               className="border-0 flex-grow-1 me-2 fs-6"
             />
-            <Button variant="primary" type="submit" className="border-0" style={{ background: '#0078d4' }}>
+            <div className="d-flex align-items-center">
+              <Dropdown>
+                  <Dropdown.Toggle variant="transparent" id="dueDateDropdown" className="border-0 d-flex dropdown-toggle">
+                    <BsCalendar3 className="fs-5 icon" />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="custom-menu">
+                    <Dropdown.Item onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                <DatePicker
+                  selected={dueDate}
+                  onChange={(date) => setDueDate(date)}
+                  placeholderText={format(new Date(), 'EEE, dd MMM')}
+                  dateFormat="EEE, dd MMM"
+                  className="border-0 me-2 rounded border p-2 fs-6"
+                />
+            </div>
+            <Button variant="primary" type="submit" className="border-0" style={{ background: '#5E1B89' }}>
               <BsPlus className="text-white fs-4" />
             </Button>
           </Form.Group>

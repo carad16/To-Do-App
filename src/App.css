@@ -80,3 +80,11 @@
   background-color: #7C2CAB; 
   border-color: #7C2CAB;
 }
+
+.dropdown-toggle::after {
+  display: none !important; 
+}
+
+.task-item:hover {
+  background-color: #f8f9fa;
+}
