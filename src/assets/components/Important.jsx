@@ -1,29 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ListGroup } from 'react-bootstrap';
-import { BsStarFill, BsStar } from 'react-icons/bs';
+import { Button, ListGroup, InputGroup, Form } from 'react-bootstrap';
+import { BsStarFill, BsStar, BsSearch } from 'react-icons/bs';
 
 function Important({ importantTasks }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('importantTasks', JSON.stringify(importantTasks));
+  }, [importantTasks]);
+
   Important.propTypes = {
     importantTasks: PropTypes.array.isRequired,
   };
 
+  const filteredTasks = importantTasks.filter((task) =>
+    task.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mt-2">
-      <h1 className="fw-bold text-left mb-2 mt-2" style={{ color: '#5E1B89', fontSize: '28px' }}>
-        Important Tasks
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        {/* search bar */}
+        <InputGroup>
+          <Form.Control
+            type="text"
+            placeholder="Search tasks"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-1"
+            style={{ fontSize: '18px' }}
+          />
+          <InputGroup.Text className="bg-transparent">
+            <BsSearch />
+          </InputGroup.Text>
+        </InputGroup>
+      </div>
+
+      <h1 className="fw-bold text-left mb-2 mt-2 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
+        IMPORTANT TASKS
       </h1>
-      {importantTasks.length === 0 && (
+
+      {(searchTerm !== '' && filteredTasks.length === 0) && (
+        <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
+          <div>
+            <p className="mb-0">No task found.</p>
+          </div>
+        </div>
+      )}
+
+      {filteredTasks.length === 0 && searchTerm === '' && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
             <p className="mb-0">No important tasks.</p>
           </div>
         </div>
       )}
-      {importantTasks.length > 0 && (
+      {filteredTasks.length > 0 && (
         <ListGroup>
-          {importantTasks.map((task, index) => (
-            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
+          {filteredTasks.map((task, index) => (
+            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
               <div className="d-flex align-items-center">
                 <span>{task.name}</span>
               </div>

@@ -97,3 +97,7 @@
 .date-picker-wrapper .react-datepicker__input-container input {
   max-width: 110px; 
 }
+
+.task-input {
+  resize: vertical;
+}

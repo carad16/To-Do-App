@@ -12,7 +12,10 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
     return storedTasks ? JSON.parse(storedTasks) : [{ name: 'Task 1', done: false, important: false, dueDate: new Date() }];
   });
   const [editedTask, setEditedTask] = useState({ name: '', dueDate: null });
-  const [completedTasks, setCompletedTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState(() => {
+    const storedCompletedTasks = localStorage.getItem('completedTasks');
+    return storedCompletedTasks ? JSON.parse(storedCompletedTasks) : [];
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [dueDate, setDueDate] = useState(null);
@@ -34,8 +37,8 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
   }, [tasks, updateTaskCount]);
 
   useEffect(() => {
-    updateTaskCount(tasks.length);
-  }, [tasks, updateTaskCount]);
+    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+  }, [completedTasks]);
 
   useEffect(() => {
     const handleClickOutsideContextMenu = (e) => {
@@ -187,22 +190,21 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
     if (isCompletedTask) {
       const updatedCompletedTasks = [...completedTasks];
       updatedCompletedTasks[index].done = !updatedCompletedTasks[index].done;
+      setCompletedTasks(updatedCompletedTasks);
+  
       if (!updatedCompletedTasks[index].done) {
         const taskToMoveBack = updatedCompletedTasks.splice(index, 1)[0];
         setTasks([...tasks, taskToMoveBack]);
       }
-      setCompletedTasks(updatedCompletedTasks);
     } else {
       const updatedTasks = [...tasks];
       updatedTasks[index].done = !updatedTasks[index].done;
+      setTasks(updatedTasks);
+  
       if (updatedTasks[index].done) {
         const taskToMove = updatedTasks.splice(index, 1)[0];
         setCompletedTasks([...completedTasks, taskToMove]);
-      } else {
-        const taskToMoveBack = updatedTasks.splice(index, 1)[0];
-        setTasks([...updatedTasks, taskToMoveBack]);
       }
-      setTasks(updatedTasks);
     }
   };
 
@@ -268,7 +270,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
             {/* list of tasks added */}
             <ListGroup>
               {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item" onContextMenu={(e) => handleContextMenu(e, index, false)}>
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" onContextMenu={(e) => handleContextMenu(e, index, false)}>
                   <div className="row w-100">
                     <div className="col mt-1">
                       {editedTaskIndex === index ? (
@@ -348,7 +350,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
             {/* list of completed tasks */}
             <ListGroup>
               {filteredCompletedTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
                   <div className="d-flex align-items-center">
                     <input
                       type="checkbox"

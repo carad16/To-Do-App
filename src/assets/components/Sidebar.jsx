@@ -78,54 +78,6 @@ function Sidebar({ taskCount }) {
             </div>
           </Link>
         </div>
-        <div className="mt-3 text-left roboto-font">
-          <SidebarMenu.Nav.Title>
-            CATEGORIES
-          </SidebarMenu.Nav.Title>
-        </div>
-        <hr className="bg-light mb-1 mt-2 text-left" />
-        <div className="d-grid gap-1">
-          {categories.map(category => (
-            <Link key={category.id} className="hover-link p-2" variant="primary mb-2" size="sm">
-              <div className="d-flex align-items-center">
-                {category.id === 'new' ? (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="form-control"
-                    />
-                   <Button
-                      variant="warning"
-                      className="ms-2"
-                      onClick={handleAddCategory}
-                      style={{
-                        backgroundColor: isHovered ? '#9D71BC' : '#5E1B89',
-                        borderColor: isHovered ? '#9D71BC' : '#5E1B89'
-                      }}
-                      onMouseOver={handleMouseOver}
-                      onMouseOut={handleMouseOut}
-                    >
-                      <span className="text-white">Save</span>
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <div>{category.name}</div>
-                  </>
-                )}
-              </div>
-            </Link>
-          ))}
-          <Link className="hover-link p-2" variant="primary mb-2" size="sm">
-            <div className="d-flex align-items-center">
-              <BsPlus className="me-1" size={24}/>
-              <div onClick={() => setCategories([...categories, { id: 'new', name: '' }])}>Add New Category</div>
-            </div>
-          </Link>
-        </div>
       </div>
     </div>
   );
