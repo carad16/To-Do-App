@@ -1,46 +1,16 @@
-import { useState } from 'react';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import SidebarMenu from 'react-bootstrap-sidebar-menu';
-import Button from 'react-bootstrap/Button';
-import { BsStar, BsTrash, BsPlus, BsHouseDoor } from 'react-icons/bs';
+import { BsStar, BsTrash, BsHouseDoor } from 'react-icons/bs';
 import { Link } from "react-router-dom";
 import logo from '/lexmeet_white.png';
 
 function Sidebar({ taskCount }) {
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Work' },
-    { id: 2, name: 'Personal' }
-  ]);
-  const [newCategoryName, setNewCategoryName] = useState('');
 
   const sidebarStyle = {
     background: 'linear-gradient(180deg, rgba(94,27,137,1) 0%, rgba(157,113,188,1) 29%, rgba(255,127,77,1) 100%), rgb(94, 27, 137)',
     color: 'white',
     width: '250px',
     borderTopRightRadius: '15px',
-  };
-
-  const handleAddCategory = () => {
-    if (newCategoryName.trim() !== '') {
-      const newCategory = {
-        id: Date.now(),
-        name: newCategoryName.trim()
-      };
-      const newCategoryIndex = categories.findIndex(category => category.id === 'new');
-      const updatedCategories = [...categories.slice(0, newCategoryIndex), newCategory, ...categories.slice(newCategoryIndex)];
-      setCategories(updatedCategories);
-      setNewCategoryName('');
-    }
-  };
-
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseOver = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseOut = () => {
-    setIsHovered(false);
   };
 
   return (
