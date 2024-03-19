@@ -4,9 +4,9 @@ import SidebarMenu from 'react-bootstrap-sidebar-menu';
 import Button from 'react-bootstrap/Button';
 import { BsStar, BsTrash, BsPlus, BsHouseDoor } from 'react-icons/bs';
 import { Link } from "react-router-dom";
+import logo from '/lexmeet_white.png';
 
-function Sidebar() {
-  const [show, setShow] = useState(true);
+function Sidebar({ taskCount }) {
   const [categories, setCategories] = useState([
     { id: 1, name: 'Work' },
     { id: 2, name: 'Personal' }
@@ -45,21 +45,24 @@ function Sidebar() {
 
   return (
     <div className="sidebar-offcanvas p-3" style={sidebarStyle}>
-      <Offcanvas.Header>
-        <Offcanvas.Title className="text-white fw-bolder mb-3 mt-2">To-Do App</Offcanvas.Title>
+      <Offcanvas.Header className="d-flex justify-content-center align-items-center mb-3">
+        <img src={logo} alt="LexMeet" className="img-fluid" style={{ maxWidth: '170px', maxHeight: '95px' }} />
       </Offcanvas.Header>
       <div>
-        <div className="fw-bold text-left">
+        <div className=" text-left roboto-font">
           <SidebarMenu.Nav.Title>
-            All to-dos
+            ALL TO DOS
           </SidebarMenu.Nav.Title>
         </div>
         <hr className="bg-light mb-1 mt-2 text-left" />
         <div className="d-grid gap-1">
           <Link to="/tasks" className="hover-link p-2" variant="primary mb-2" size="sm">
-            <div className="d-flex align-items-center">
-              <BsHouseDoor className="me-2"/> 
-              Tasks
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                <BsHouseDoor className="me-2"/> 
+                Tasks
+              </div>
+              <div className="text-white" style={{ fontSize: '11px' }}>{taskCount}</div>
             </div>
           </Link>
           <Link to="/important" className="hover-link p-2" variant="primary mb-2" size="sm">
@@ -75,9 +78,9 @@ function Sidebar() {
             </div>
           </Link>
         </div>
-        <div className="mt-3 fw-bold text-left">
+        <div className="mt-3 text-left roboto-font">
           <SidebarMenu.Nav.Title>
-            Categories
+            CATEGORIES
           </SidebarMenu.Nav.Title>
         </div>
         <hr className="bg-light mb-1 mt-2 text-left" />
