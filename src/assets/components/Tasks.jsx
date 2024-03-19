@@ -5,14 +5,17 @@ import DatePicker from 'react-datepicker';
 import { InputGroup, Form, Button, ListGroup, Dropdown, Modal } from 'react-bootstrap';
 import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill, BsCalendar3, BsThreeDots } from 'react-icons/bs';
 
-function Tasks({ updateTaskCount, setImportantTasks }) {
+function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState(() => {
     const storedTasks = localStorage.getItem('tasks');
     return storedTasks ? JSON.parse(storedTasks) : [{ name: 'Task 1', done: false, important: false, dueDate: new Date() }];
   });
   const [editedTask, setEditedTask] = useState({ name: '', dueDate: null });
-  const [completedTasks, setCompletedTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState(() => {
+    const storedCompletedTasks = localStorage.getItem('completedTasks');
+    return storedCompletedTasks ? JSON.parse(storedCompletedTasks) : [];
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [dueDate, setDueDate] = useState(null);
@@ -26,7 +29,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
   const [cancelHovered, cancelIsHovered] = useState(false);
   const [deleteHovered, deleteIsHovered] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [setShowDatePicker] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -34,8 +37,8 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
   }, [tasks, updateTaskCount]);
 
   useEffect(() => {
-    updateTaskCount(tasks.length);
-  }, [tasks, updateTaskCount]);
+    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+  }, [completedTasks]);
 
   useEffect(() => {
     const handleClickOutsideContextMenu = (e) => {
@@ -55,6 +58,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
   Tasks.propTypes = {
     updateTaskCount: PropTypes.func.isRequired,
     setImportantTasks: PropTypes.func.isRequired,
+    setRecentlyDeletedTasks: PropTypes.func.isRequired,
   };
 
   const handleChange = (e) => {
@@ -72,6 +76,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
   };
 
   const handleRemoveAllTasks = () => {
+    setRecentlyDeletedTasks((prevTasks) => [...prevTasks, ...tasks]);
     setTasks([]);
   };
 
@@ -149,25 +154,37 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
     setTasks(updatedTasks);
   };
 
-  const handleDelete = (index) => {
+  const handleDelete = (index, isCompletedTask) => {
     setShowDeleteModal(true);
     setSelectedTaskIndex(index);
+    const taskToDelete = isCompletedTask ? completedTasks[index] : tasks[index];
+
+    if (taskToDelete.important) {
+      setImportantTasks((prevImportantTasks) =>
+        prevImportantTasks.filter((task) => task.name !== taskToDelete.name)
+      );
+    }
   };
 
   const confirmDelete = () => {
     if (selectedTaskIndex !== null) {
       const isCompletedTask = completedTasks.findIndex((task, index) => index === selectedTaskIndex) !== -1;
       if (isCompletedTask) {
+        const deletedTask = completedTasks[selectedTaskIndex];
         const updatedCompletedTasks = completedTasks.filter((_, i) => i !== selectedTaskIndex);
         setCompletedTasks(updatedCompletedTasks);
+        setRecentlyDeletedTasks(prevTasks => [...prevTasks, { ...deletedTask }]);
       } else {
+        const deletedTask = tasks[selectedTaskIndex];
         const updatedTasks = tasks.filter((_, i) => i !== selectedTaskIndex);
         setTasks(updatedTasks);
+        setRecentlyDeletedTasks(prevTasks => [...prevTasks, { ...deletedTask }]);
       }
       setShowDeleteModal(false);
       setSelectedTaskIndex(null);
     }
   };
+  
 
   const handleToggleImportant = (index, isCompletedTask) => {
     const updatedTasks = isCompletedTask ? [...completedTasks] : [...tasks];
@@ -187,22 +204,21 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
     if (isCompletedTask) {
       const updatedCompletedTasks = [...completedTasks];
       updatedCompletedTasks[index].done = !updatedCompletedTasks[index].done;
+      setCompletedTasks(updatedCompletedTasks);
+  
       if (!updatedCompletedTasks[index].done) {
         const taskToMoveBack = updatedCompletedTasks.splice(index, 1)[0];
         setTasks([...tasks, taskToMoveBack]);
       }
-      setCompletedTasks(updatedCompletedTasks);
     } else {
       const updatedTasks = [...tasks];
       updatedTasks[index].done = !updatedTasks[index].done;
+      setTasks(updatedTasks);
+  
       if (updatedTasks[index].done) {
         const taskToMove = updatedTasks.splice(index, 1)[0];
         setCompletedTasks([...completedTasks, taskToMove]);
-      } else {
-        const taskToMoveBack = updatedTasks.splice(index, 1)[0];
-        setTasks([...updatedTasks, taskToMoveBack]);
       }
-      setTasks(updatedTasks);
     }
   };
 
@@ -268,7 +284,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
             {/* list of tasks added */}
             <ListGroup>
               {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item" onContextMenu={(e) => handleContextMenu(e, index, false)}>
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" onContextMenu={(e) => handleContextMenu(e, index, false)}>
                   <div className="row w-100">
                     <div className="col mt-1">
                       {editedTaskIndex === index ? (
@@ -335,7 +351,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
           className="mt-3 d-flex align-items-center text-white"
           style={{ fontSize: '13px', backgroundColor: showCompletedTasks ? '#F4512C' : '#5E1B89', border: '#5E1B89'}}
         >
-          {showCompletedTasks ? 'Completed Tasks' : 'Completed Tasks'}
+          {showCompletedTasks ? 'Hide Completed Tasks' : 'Show Completed Tasks'}
           {showCompletedTasks ? <BsChevronUp className="ms-2" /> : <BsChevronDown className="ms-2" />}
         </Button>
 
@@ -348,7 +364,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
             {/* list of completed tasks */}
             <ListGroup>
               {filteredCompletedTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
                   <div className="d-flex align-items-center">
                     <input
                       type="checkbox"
@@ -359,6 +375,9 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
                     <span className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
                   </div>
                   <div>
+                    {task.dueDate && (
+                      <span className="align-middle text-muted fs-6">{format(task.dueDate, 'EEE, dd MMM')}</span>
+                    )}
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
@@ -423,7 +442,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
           onHide={() => setContextMenuVisible(false)}
         >
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)}>
+            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)} style={{ color: '#d11a2a'}}>
               Delete
             </Dropdown.Item>
             <Dropdown.Item onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
