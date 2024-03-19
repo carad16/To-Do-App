@@ -32,7 +32,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     updateTaskCount(tasks.length);
   }, [tasks, updateTaskCount]);
-  
+
   useEffect(() => {
     updateTaskCount(tasks.length);
   }, [tasks, updateTaskCount]);
@@ -233,8 +233,8 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
         </InputGroup>
 
         <div className="d-flex justify-content-between align-items-center">
-          <h1 className="fw-bold text-left mb-2 mt-2" style={{ color: '#5E1B89', fontSize: '28px' }}>
-            Tasks
+          <h1 className="fw-bold text-left mb-2 mt-2 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
+            TASKS
           </h1>
           <Dropdown>
             <Dropdown.Toggle variant="transparent" id="tasksDropdown">
@@ -288,7 +288,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
                             className="fs-5 me-2 form-check-input rounded-circle"
                           />
                           <span
-                            className={`${task.done ? 'text-decoration-line-through' : ''}`}
+                            className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}
                             onClick={() => handleEditTask(index, task.name, task.dueDate)} 
                           >
                             {task.name}
@@ -341,8 +341,8 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
 
         {showCompletedTasks && filteredCompletedTasks.length > 0 && (
           <>
-            <h2 className="fw-bold text-left mb-2 mt-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
-              Completed Tasks
+            <h2 className="fw-bold text-left mb-2 mt-4 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
+              COMPLETED TASKS
             </h2>
             
             {/* list of completed tasks */}
@@ -356,7 +356,7 @@ function Tasks({ updateTaskCount, setImportantTasks }) {
                       onChange={() => handleToggleDone(index, true)}
                       className="fs-5 me-2 form-check-input rounded-circle"
                     />
-                    <span className={`${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
+                    <span className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
                   </div>
                   <div>
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
