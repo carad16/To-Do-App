@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
-import { Button, ListGroup, InputGroup, Form } from 'react-bootstrap';
-import { BsStarFill, BsStar, BsSearch } from 'react-icons/bs';
+import { ListGroup, InputGroup, Form, Dropdown} from 'react-bootstrap';
+import { BsSearch, BsThreeDots } from 'react-icons/bs';
 
-function Important({ importantTasks }) {
+function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('importantTasks', JSON.stringify(importantTasks));
-  }, [importantTasks]);
+    localStorage.setItem('recentlyDeletedTasks', JSON.stringify(recentlyDeletedTasks));
+  }, [recentlyDeletedTasks]);
 
-  Important.propTypes = {
-    importantTasks: PropTypes.array.isRequired,
+  const handleClearAll = () => {
+    localStorage.removeItem('recentlyDeletedTasks');
+    console.log('Local storage cleared');
+    setRecentlyDeletedTasks([]);
   };
 
-  const filteredTasks = importantTasks.filter((task) =>
+  RecentlyDeleted.propTypes = {
+    recentlyDeletedTasks: PropTypes.array.isRequired,
+  };
+
+  const filteredTasks = recentlyDeletedTasks.filter((task) =>
     task.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -38,10 +44,20 @@ function Important({ importantTasks }) {
         </InputGroup>
       </div>
 
-      <h1 className="fw-bold text-left mb-2 mt-2 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
-        IMPORTANT TASKS
-      </h1>
-
+      <div className="d-flex justify-content-between align-items-center">
+        <h1 className="fw-bold text-left mb-2 mt-2 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
+            RECENTLY DELETED TASKS
+        </h1>
+        <Dropdown>
+        <Dropdown.Toggle variant="transparent" id="tasksDropdown">
+            <BsThreeDots className="fs-5 icon" />
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+            <Dropdown.Item onClick={handleClearAll}>Clear All</Dropdown.Item>
+        </Dropdown.Menu>
+        </Dropdown>
+      </div>
+    
       {(searchTerm !== '' && filteredTasks.length === 0) && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
@@ -53,7 +69,7 @@ function Important({ importantTasks }) {
       {filteredTasks.length === 0 && searchTerm === '' && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
-            <p className="mb-0">No important tasks.</p>
+            <p className="mb-0">No recently deleted tasks.</p>
           </div>
         </div>
       )}
@@ -61,18 +77,13 @@ function Important({ importantTasks }) {
         <ListGroup>
           {filteredTasks.map((task, index) => (
             <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
-            <div className="d-flex align-items-center">
-              <span>{task.name}</span>
-            </div>
-            <div>
+              <div className="d-flex align-items-center">
+                <span>{task.name}</span>
+              </div>
               {task.dueDate && (
                 <span className="align-middle ms-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
               )}
-              <Button variant="link" style={{ color: '#ffc107' }}>
-                {task.important ? <BsStarFill /> : <BsStar />}
-              </Button>
-            </div>
-          </ListGroup.Item>
+            </ListGroup.Item>
           ))}
         </ListGroup>
       )}
@@ -80,4 +91,4 @@ function Important({ importantTasks }) {
   );
 }
 
-export default Important;
+export default RecentlyDeleted;
