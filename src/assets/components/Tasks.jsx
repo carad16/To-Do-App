@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
-import { InputGroup, Form, Button, ListGroup, FormCheck, Dropdown, Modal } from 'react-bootstrap';
+import { InputGroup, Form, Button, ListGroup, Dropdown, Modal } from 'react-bootstrap';
 import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill, BsCalendar3, BsThreeDots } from 'react-icons/bs';
 
-function Tasks() {
+function Tasks({ updateTaskCount, setImportantTasks }) {
   const [task, setTask] = useState('');
-  const [tasks, setTasks] = useState([{ name: 'Task 1', done: false, important: false, dueDate: new Date() }]);
+  const [tasks, setTasks] = useState(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks) : [{ name: 'Task 1', done: false, important: false, dueDate: new Date() }];
+  });
   const [editedTask, setEditedTask] = useState({ name: '', dueDate: null });
   const [completedTasks, setCompletedTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,10 +22,20 @@ function Tasks() {
   const [editedTaskIndex, setEditedTaskIndex] = useState(null);
   const [editedTaskContent, setEditedTaskContent] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [completeHovered, completeIsHovered] = useState(false);
   const [cancelHovered, cancelIsHovered] = useState(false);
   const [deleteHovered, deleteIsHovered] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    updateTaskCount(tasks.length);
+  }, [tasks, updateTaskCount]);
+  
+  useEffect(() => {
+    updateTaskCount(tasks.length);
+  }, [tasks, updateTaskCount]);
 
   useEffect(() => {
     const handleClickOutsideContextMenu = (e) => {
@@ -37,6 +51,11 @@ function Tasks() {
       window.removeEventListener('click', handleClickOutsideContextMenu);
     };
   }, [contextMenuVisible]);
+
+  Tasks.propTypes = {
+    updateTaskCount: PropTypes.func.isRequired,
+    setImportantTasks: PropTypes.func.isRequired,
+  };
 
   const handleChange = (e) => {
     setTask(e.target.value);
@@ -108,15 +127,20 @@ function Tasks() {
   };
 
   const handleUpdateTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].name = editedTaskContent;
-    if (editedTask.dueDate === 'noDueDate') {
-      updatedTasks[index].dueDate = null; 
+    if (editedTaskContent.trim() !== '') {
+      const updatedTasks = [...tasks];
+      updatedTasks[index].name = editedTaskContent;
+      if (editedTask.dueDate === 'noDueDate') {
+        updatedTasks[index].dueDate = null; 
+      } else {
+        updatedTasks[index].dueDate = editedTask.dueDate; 
+      }
+      setTasks(updatedTasks);
+      setEditedTaskIndex(null);
     } else {
-      updatedTasks[index].dueDate = editedTask.dueDate; 
+      setEditedTaskContent(tasks[index].name);
+      setEditedTaskIndex(null);
     }
-    setTasks(updatedTasks);
-    setEditedTaskIndex(null);
   };
 
   const handleUpdateTaskDueDate = (index, date) => {
@@ -149,6 +173,14 @@ function Tasks() {
     const updatedTasks = isCompletedTask ? [...completedTasks] : [...tasks];
     updatedTasks[index].important = !updatedTasks[index].important;
     isCompletedTask ? setCompletedTasks(updatedTasks) : setTasks(updatedTasks);
+
+    if (updatedTasks[index].important) {
+      setImportantTasks((prevImportantTasks) => [...prevImportantTasks, updatedTasks[index]]);
+    } else {
+      setImportantTasks((prevImportantTasks) =>
+        prevImportantTasks.filter((task) => task.name !== updatedTasks[index].name)
+      );
+    }
   };
 
   const handleToggleDone = (index, isCompletedTask) => {
@@ -201,7 +233,7 @@ function Tasks() {
         </InputGroup>
 
         <div className="d-flex justify-content-between align-items-center">
-          <h1 className="fw-bold text-left mb-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
+          <h1 className="fw-bold text-left mb-2 mt-2" style={{ color: '#5E1B89', fontSize: '28px' }}>
             Tasks
           </h1>
           <Dropdown>
@@ -249,14 +281,14 @@ function Tasks() {
                           />
                         ) : (
                         <div className="d-flex align-items-center">
-                          <FormCheck
+                          <input
                             type="checkbox"
                             checked={task.done}
                             onChange={() => handleToggleDone(index)}
-                            className="fs-5 me-2"
+                            className="fs-5 me-2 form-check-input rounded-circle"
                           />
                           <span
-                            style={{ textDecoration: task.done ? 'line-through' : 'none' }}
+                            className={`${task.done ? 'text-decoration-line-through' : ''}`}
                             onClick={() => handleEditTask(index, task.name, task.dueDate)} 
                           >
                             {task.name}
@@ -309,7 +341,7 @@ function Tasks() {
 
         {showCompletedTasks && filteredCompletedTasks.length > 0 && (
           <>
-            <h2 className="fw-bold text-left mb-4 mt-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
+            <h2 className="fw-bold text-left mb-2 mt-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
               Completed Tasks
             </h2>
             
@@ -318,20 +350,20 @@ function Tasks() {
               {filteredCompletedTasks.map((task, index) => (
                 <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item">
                   <div className="d-flex align-items-center">
-                    <FormCheck
+                    <input
                       type="checkbox"
                       checked={task.done}
                       onChange={() => handleToggleDone(index, true)}
-                      className="fs-5 me-2"
+                      className="fs-5 me-2 form-check-input rounded-circle"
                     />
-                    <span style={{ textDecoration: task.done ? 'line-through' : 'none' }}>{task.name}</span>
+                    <span className={`${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
                   </div>
                   <div>
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
-                    <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
-                                onMouseLeave={() => setIsHovered(false)}>
+                    <Button className="border-0" style={{ fontSize: '16px', color: completeHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => completeIsHovered(true)}
+                                onMouseLeave={() => completeIsHovered(false)}>
                       <BsTrash />
                     </Button>
                   </div>
@@ -342,7 +374,7 @@ function Tasks() {
         )}
 
         {/* task form control */}
-        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3">
+        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3 position-relative bottom-0 start-50 translate-middle-x">
           <Form.Group controlId="taskInput" className="d-flex align-items-center rounded border bg-light p-2">
             <div className="flex-grow-1 me-2">
               <Form.Control

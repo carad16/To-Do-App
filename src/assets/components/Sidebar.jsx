@@ -5,8 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { BsStar, BsTrash, BsPlus, BsHouseDoor } from 'react-icons/bs';
 import { Link } from "react-router-dom";
 
-function Sidebar() {
-  const [show, setShow] = useState(true);
+function Sidebar({ taskCount }) {
   const [categories, setCategories] = useState([
     { id: 1, name: 'Work' },
     { id: 2, name: 'Personal' }
@@ -57,9 +56,12 @@ function Sidebar() {
         <hr className="bg-light mb-1 mt-2 text-left" />
         <div className="d-grid gap-1">
           <Link to="/tasks" className="hover-link p-2" variant="primary mb-2" size="sm">
-            <div className="d-flex align-items-center">
-              <BsHouseDoor className="me-2"/> 
-              Tasks
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                <BsHouseDoor className="me-2"/> 
+                Tasks
+              </div>
+              <div className="text-white" style={{ fontSize: '11px' }}>{taskCount}</div>
             </div>
           </Link>
           <Link to="/important" className="hover-link p-2" variant="primary mb-2" size="sm">
