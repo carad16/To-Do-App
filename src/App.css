@@ -80,3 +80,15 @@
   background-color: #7C2CAB; 
   border-color: #7C2CAB;
 }
+
+.dropdown-toggle::after {
+  display: none !important; 
+}
+
+.task-item:hover {
+  background-color: #f8f9fa;
+}
+
+.date-picker-wrapper .react-datepicker__input-container input {
+  max-width: 110px; 
+}
