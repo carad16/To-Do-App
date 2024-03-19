@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import { InputGroup, Form, Button, ListGroup, FormCheck, Dropdown, Modal } from 'react-bootstrap';
-import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill, BsCalendar3 } from 'react-icons/bs';
+import { BsSearch, BsTrash, BsPlus, BsChevronDown, BsChevronUp, BsStar, BsStarFill, BsCalendar3, BsThreeDots } from 'react-icons/bs';
 
 function Tasks() {
   const [task, setTask] = useState('');
@@ -21,6 +21,7 @@ function Tasks() {
   const [cancelHovered, cancelIsHovered] = useState(false);
   const [deleteHovered, deleteIsHovered] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     const handleClickOutsideContextMenu = (e) => {
@@ -37,25 +38,25 @@ function Tasks() {
     };
   }, [contextMenuVisible]);
 
-  useEffect(() => {
-    const handleClickOutsideContextMenu = (e) => {
-      if (!e.target.closest('.context-menu')) {
-        setContextMenuVisible(false);
-      }
-    };
-
-    window.addEventListener('click', handleClickOutsideContextMenu);
-
-    return () => {
-      window.removeEventListener('click', handleClickOutsideContextMenu);
-    };
-  }, [contextMenuVisible]);
-
   const handleChange = (e) => {
     setTask(e.target.value);
   };
 
-  const handleContextMenu = (e, index, isCompletedTask) => {
+  const handleSelectAllTasks = () => {
+    const updatedTasks = tasks.map(task => ({
+      ...task,
+      done: true,
+    }));
+    const updatedCompletedTasks = [...completedTasks, ...updatedTasks];
+    setCompletedTasks(updatedCompletedTasks);
+    setTasks([]);
+  };
+
+  const handleRemoveAllTasks = () => {
+    setTasks([]);
+  };
+
+  const handleContextMenu = (e, index) => {
     e.preventDefault();
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
     setContextMenuVisible(true);
@@ -78,15 +79,17 @@ function Tasks() {
   };
 
   const handleDueDateOption = (option) => {
-    if (option === 'today') {
+    if (option === 'pickDate') {
+      setShowDatePicker(true);
+    } else if (option === 'today') {
       setDueDate(new Date());
     } else if (option === 'tomorrow') {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       setDueDate(tomorrow);
-    } else {
+    } else if (option === 'noDueDate') {
       setDueDate(null);
-    }
+    } 
   };
 
   const handleSubmit = (e) => {
@@ -107,6 +110,11 @@ function Tasks() {
   const handleUpdateTask = (index) => {
     const updatedTasks = [...tasks];
     updatedTasks[index].name = editedTaskContent;
+    if (editedTask.dueDate === 'noDueDate') {
+      updatedTasks[index].dueDate = null; 
+    } else {
+      updatedTasks[index].dueDate = editedTask.dueDate; 
+    }
     setTasks(updatedTasks);
     setEditedTaskIndex(null);
   };
@@ -117,7 +125,7 @@ function Tasks() {
     setTasks(updatedTasks);
   };
 
-  const handleDelete = (index, isCompletedTask) => {
+  const handleDelete = (index) => {
     setShowDeleteModal(true);
     setSelectedTaskIndex(index);
   };
@@ -192,17 +200,36 @@ function Tasks() {
           </InputGroup.Text>
         </InputGroup>
 
-        <h1 className="fw-bold text-left mb-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
-          Tasks
-        </h1>
+        <div className="d-flex justify-content-between align-items-center">
+          <h1 className="fw-bold text-left mb-4" style={{ color: '#5E1B89', fontSize: '28px' }}>
+            Tasks
+          </h1>
+          <Dropdown>
+            <Dropdown.Toggle variant="transparent" id="tasksDropdown">
+              <BsThreeDots className="fs-5 icon" />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={handleSelectAllTasks}>Done All</Dropdown.Item>
+              <Dropdown.Item onClick={handleRemoveAllTasks}>Remove All</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
 
-        {filteredTasks.length === 0 && tasks.length === 0 && (
+        {(tasks.length === 0 && searchTerm === '') && (
           <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
             <div>
               <p className="mb-0">No tasks created yet.</p>
             </div>
           </div>
         )}
+
+        {(searchTerm !== '' && filteredTasks.length === 0) && (
+          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
+            <div>
+              <p className="mb-0">No task found.</p>
+            </div>
+          </div>
+        )}    
 
         {filteredTasks.length > 0 && (
           <>
@@ -256,7 +283,7 @@ function Tasks() {
                         >
                           {task.important ? <BsStarFill /> : <BsStar />}
                         </Button>
-                        <Button className="border-0" style={{ color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
+                        <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}>
                           <BsTrash />
                         </Button>
@@ -303,7 +330,8 @@ function Tasks() {
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(index, true)} style={{ backgroundColor: '#d11a2a'  }}>
+                    <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
+                                onMouseLeave={() => setIsHovered(false)}>
                       <BsTrash />
                     </Button>
                   </div>
@@ -316,13 +344,15 @@ function Tasks() {
         {/* task form control */}
         <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3">
           <Form.Group controlId="taskInput" className="d-flex align-items-center rounded border bg-light p-2">
-            <Form.Control
-              type="text"
-              placeholder="Add a task"
-              value={task}
-              onChange={handleChange}
-              className="border-0 flex-grow-1 me-2 fs-6"
-            />
+            <div className="flex-grow-1 me-2">
+              <Form.Control
+                type="text"
+                placeholder="Add a task"
+                value={task}
+                onChange={handleChange}
+                className="border-0 fs-6"
+              />
+            </div>
             <div className="d-flex align-items-center">
               <Dropdown>
                 <Dropdown.Toggle variant="transparent" id="dueDateDropdown" className="border-0 d-flex dropdown-toggle">
@@ -332,39 +362,49 @@ function Tasks() {
                   <Dropdown.Item onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
                   <Dropdown.Item onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
                   <Dropdown.Item onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleDueDateOption('noDueDate')}>No Due Date</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <DatePicker
-                selected={dueDate}
-                onChange={(date) => setDueDate(date)}
-                placeholderText={format(new Date(), 'EEE, dd MMM')}
-                dateFormat="EEE, dd MMM"
-                className="border-0 me-2 rounded border p-2 fs-6"
-              />
+              {dueDate && (
+                <DatePicker
+                  selected={dueDate}
+                  onChange={(date) => {
+                    setDueDate(date);
+                  }}
+                  placeholderText="Select a due date"
+                  dateFormat="EEE, dd MMM"
+                  className="border-0 rounded p-2 fs-6"
+                />
+              )}
+              <Button variant="primary" type="submit" className="border-0" style={{ background: '#5E1B89' }}>
+                <BsPlus className="text-white fs-4" />
+              </Button>
             </div>
-            <Button variant="primary" type="submit" className="border-0" style={{ background: '#5E1B89' }}>
-              <BsPlus className="text-white fs-4" />
-            </Button>
           </Form.Group>
         </Form>
       </div>
       {contextMenuVisible && (
-        <div className="context-menu" style={{ position: 'fixed', top: contextMenuPosition.y, left: contextMenuPosition.x, backgroundColor: '#ffffff', border: '1px solid #ccc', borderRadius: '10px', boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1)' }}>
-          <ul className="list-group" style={{ borderRadius: '10px' }}>
-            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)}>
+        <Dropdown
+          className="context-menu"
+          style={{ position: 'fixed', top: contextMenuPosition.y, left: contextMenuPosition.x }}
+          show={contextMenuVisible}
+          onHide={() => setContextMenuVisible(false)}
+        >
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)}>
               Delete
-            </Button>
-            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
               Edit
-            </Button>
-            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('complete', selectedTaskIndex, false)}>
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleContextMenuAction('complete', selectedTaskIndex, false)}>
               {tasks[selectedTaskIndex]?.done ? 'Mark as Incomplete' : 'Mark as Complete'}
-            </Button>
-            <Button className="list-group-item border-0" onClick={() => handleContextMenuAction('important', selectedTaskIndex, false)}>
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleContextMenuAction('important', selectedTaskIndex, false)}>
               {tasks[selectedTaskIndex]?.important ? 'Unmark as Important' : 'Mark as Important'}
-            </Button>
-          </ul>
-        </div>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       )}
 
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
