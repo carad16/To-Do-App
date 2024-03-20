@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import { ListGroup, InputGroup, Form, Dropdown} from 'react-bootstrap';
@@ -19,6 +19,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
 
   RecentlyDeleted.propTypes = {
     recentlyDeletedTasks: PropTypes.array.isRequired,
+    setRecentlyDeletedTasks: PropTypes.array.isRequired,
   };
 
   const filteredTasks = recentlyDeletedTasks.filter((task) =>

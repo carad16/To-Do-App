@@ -195,7 +195,6 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
     }
   };
   
-
   const handleToggleImportant = (index, isCompletedTask) => {
     const updatedTasks = isCompletedTask ? [...completedTasks] : [...tasks];
     updatedTasks[index].important = !updatedTasks[index].important;
