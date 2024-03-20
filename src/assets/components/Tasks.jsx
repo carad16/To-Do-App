@@ -28,8 +28,12 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   const [completeHovered, completeIsHovered] = useState(false);
   const [cancelHovered, cancelIsHovered] = useState(false);
   const [deleteHovered, deleteIsHovered] = useState(false);
+  const [removeHovered, removeIsHovered] = useState(false);
+  const [cancelhovered, cancelisHovered] = useState(false);
+  const [addHovered, addIsHovered] = useState(false); 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [setShowDatePicker] = useState(false);
+  const [showRemoveAllModal, setShowRemoveAllModal] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -76,8 +80,13 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   };
 
   const handleRemoveAllTasks = () => {
+    setShowRemoveAllModal(true);
+  };
+  
+  const confirmRemoveAllTasks = () => {
     setRecentlyDeletedTasks((prevTasks) => [...prevTasks, ...tasks]);
     setTasks([]);
+    setShowRemoveAllModal(false);
   };
 
   const handleContextMenu = (e, index) => {
@@ -242,7 +251,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border-1 mb-3"
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent mb-3">
             <BsSearch />
@@ -264,134 +273,26 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </Dropdown>
         </div>
 
-        {(tasks.length === 0 && searchTerm === '') && (
-          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
-            <div>
-              <p className="mb-0">No tasks created yet.</p>
-            </div>
-          </div>
-        )}
-
-        {(searchTerm !== '' && filteredTasks.length === 0) && (
-          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
-            <div>
-              <p className="mb-0">No task found.</p>
-            </div>
-          </div>
-        )}    
-
-        {filteredTasks.length > 0 && (
-          <>
-            {/* list of tasks added */}
-            <ListGroup>
-              {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" onContextMenu={(e) => handleContextMenu(e, index, false)}>
-                  <div className="row w-100">
-                    <div className="col mt-1">
-                      {editedTaskIndex === index ? (
-                          <Form.Control
-                            type="text"
-                            value={editedTaskContent}
-                            onChange={(e) => setEditedTaskContent(e.target.value)}
-                            onBlur={() => handleUpdateTask(index)}
-                            className="w-100 task-edit-form"
-                          />
-                        ) : (
-                        <div className="d-flex align-items-center">
-                          <input
-                            type="checkbox"
-                            checked={task.done}
-                            onChange={() => handleToggleDone(index)}
-                            className="fs-5 me-2 form-check-input rounded-circle"
-                          />
-                          <span
-                            className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}
-                            onClick={() => handleEditTask(index, task.name, task.dueDate)} 
-                          >
-                            {task.name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="d-flex col-auto">
-                      <div className="me-5">
-                        <DatePicker
-                          selected={task.dueDate}
-                          onChange={(date) => handleUpdateTaskDueDate(index, date)}
-                          placeholderText={task.dueDate ? format(task.dueDate, 'EEE, dd MMM') : 'No due date'}
-                          dateFormat="EEE, dd MMM"
-                          wrapperClassName="date-picker-wrapper"
-                          className="border-0 rounded border p-2 fs-6"
-                        />
-                      </div>
-                      <div className="d-flex align-items-center position-absolute top-50 end-0 translate-middle-y me-3">
-                        <Button
-                          variant="link"
-                          onClick={() => handleToggleImportant(index)}
-                          style={{ color: task.important ? '#ffc107' : '#6c757d' }}
-                        >
-                          {task.important ? <BsStarFill /> : <BsStar />}
-                        </Button>
-                        <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
-                                onMouseLeave={() => setIsHovered(false)}>
-                          <BsTrash />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </>
-        )}
-
-        {/* toggle button for completed tasks */}
-        <Button
-          variant="primary"
-          onClick={() => setShowCompletedTasks(!showCompletedTasks)}
-          className="mt-3 d-flex align-items-center text-white"
-          style={{ fontSize: '13px', backgroundColor: showCompletedTasks ? '#F4512C' : '#5E1B89', border: '#5E1B89'}}
-        >
-          {showCompletedTasks ? 'Hide Completed Tasks' : 'Show Completed Tasks'}
-          {showCompletedTasks ? <BsChevronUp className="ms-2" /> : <BsChevronDown className="ms-2" />}
-        </Button>
-
-        {showCompletedTasks && filteredCompletedTasks.length > 0 && (
-          <>
-            <h2 className="fw-bold text-left mb-2 mt-4 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
-              COMPLETED TASKS
-            </h2>
-            
-            {/* list of completed tasks */}
-            <ListGroup>
-              {filteredCompletedTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
-                  <div className="d-flex align-items-center">
-                    <input
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => handleToggleDone(index, true)}
-                      className="fs-5 me-2 form-check-input rounded-circle"
-                    />
-                    <span className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
-                  </div>
-                  <div>
-                    {task.dueDate && (
-                      <span className="align-middle text-muted fs-6">{format(task.dueDate, 'EEE, dd MMM')}</span>
-                    )}
-                    <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
-                      {task.important ? <BsStarFill /> : <BsStar />}
-                    </Button>
-                    <Button className="border-0" style={{ fontSize: '16px', color: completeHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => completeIsHovered(true)}
-                                onMouseLeave={() => completeIsHovered(false)}>
-                      <BsTrash />
-                    </Button>
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </>
-        )}
+        <Modal show={showRemoveAllModal} onHide={() => setShowRemoveAllModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Remove All</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to remove all tasks?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor: cancelhovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} onClick={() => setShowRemoveAllModal(false)}
+             onMouseEnter={() => cancelisHovered(true)}
+             onMouseLeave={() => cancelisHovered(false)}>
+              Cancel
+            </Button>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor: removeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} onClick={confirmRemoveAllTasks}
+             onMouseEnter={() => removeIsHovered(true)}
+             onMouseLeave={() => removeIsHovered(false)}>
+              Remove All
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
         {/* task form control */}
         <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3 position-relative bottom-0 start-50 translate-middle-x">
@@ -403,6 +304,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                 value={task}
                 onChange={handleChange}
                 className="border-0 fs-6"
+                style={{ color: '#5E1B89' }} 
               />
             </div>
             <div className="d-flex align-items-center">
@@ -428,12 +330,169 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                   className="border-0 rounded p-2 fs-6"
                 />
               )}
-              <Button variant="primary" type="submit" className="border-0" style={{ background: '#5E1B89' }}>
+              <Button variant="primary" type="submit" className="border-0" style={{ backgroundColor: addHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }}
+               onMouseEnter={() => addIsHovered(true)}
+               onMouseLeave={() => addIsHovered(false)}>
                 <BsPlus className="text-white fs-4" />
               </Button>
             </div>
           </Form.Group>
         </Form>
+
+        {(tasks.length === 0 && searchTerm === '') && (
+          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
+            <div>
+              <p className="mb-0">No tasks created yet.</p>
+            </div>
+          </div>
+        )}
+
+        {(searchTerm !== '' && filteredTasks.length === 0) && (
+          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
+            <div>
+              <p className="mb-0">No task found.</p>
+            </div>
+          </div>
+        )}    
+
+        {filteredTasks.length > 0 && (
+          <>
+            {/* list of tasks added */}
+            <ListGroup>
+              {filteredTasks.map((task, index) => (
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }}  onContextMenu={(e) => handleContextMenu(e, index, false)}>
+                  <div className="row w-100">
+                    <div className="col mt-1">
+                      {editedTaskIndex === index ? (
+                          <Form.Control
+                            type="text"
+                            value={editedTaskContent}
+                            onChange={(e) => setEditedTaskContent(e.target.value)}
+                            onBlur={() => handleUpdateTask(index)}
+                            className="w-100 task-edit-form"
+                          />
+                        ) : (
+                        <div className="d-flex align-items-center">
+                          <Form.Check
+                            type="checkbox"
+                            checked={task.done}
+                            onChange={() => handleToggleDone(index)}
+                            className="fs-5 me-2 uncomplete-checkbox"
+                          />
+                          <span
+                            className={`align-middle ${task.done ? 'text-decoration-line-through' : ''}`}
+                            onClick={() => handleEditTask(index, task.name, task.dueDate)} 
+                          >
+                            {task.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="d-flex col-auto">
+                      <div className="me-5">
+                        <DatePicker
+                          selected={task.dueDate}
+                          onChange={(date) => handleUpdateTaskDueDate(index, date)}
+                          placeholderText={task.dueDate ? format(task.dueDate, 'EEE, dd MMM') : 'No due date'}
+                          dateFormat="EEE, dd MMM"
+                          wrapperClassName="date-picker-wrapper"
+                          className="border-0 rounded border p-2 fs-6"
+                        />
+                      </div>
+                      <div className="d-flex align-items-center position-absolute top-50 end-0 translate-middle-y me-3">
+                        <Button
+                          variant="link"
+                          onClick={() => handleToggleImportant(index)}
+                          style={{ color: task.important ? '#5E1B89' : '#5E1B89' }}
+                        >
+                          {task.important ? <BsStarFill /> : <BsStar />}
+                        </Button>
+                        <Button className="border-0" style={{ fontSize: '16px',   backgroundColor: index === isHovered ? '#FF7F4D' : '#F4512C', }} size="sm" onClick={() => handleDelete(index)}  
+                            onMouseEnter={() => setIsHovered(index)}
+                            onMouseLeave={() => setIsHovered(null)}>
+                          <BsTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </>
+        )}
+
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Deletion</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete this task?
+          </Modal.Body>
+          <Modal.Footer>
+          <Button
+              className="text-white fs-6 border-0" style={{ backgroundColor:  cancelHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowDeleteModal(false)}
+              onMouseEnter={() => cancelIsHovered(true)}
+              onMouseLeave={() =>  cancelIsHovered(false)}
+            >
+              Cancel
+            </Button>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor:  deleteHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} variant="danger" onClick={confirmDelete}
+            onMouseEnter={() => deleteIsHovered(true)}
+            onMouseLeave={() =>  deleteIsHovered(false)} 
+            >
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* toggle button for completed tasks */}
+        <Button
+          variant="primary"
+          onClick={() => setShowCompletedTasks(!showCompletedTasks)}
+          className="mt-3 d-flex align-items-center text-white"
+          style={{ fontSize: '13px', backgroundColor: showCompletedTasks ? '#F4512C' : '#5E1B89', border: '#5E1B89'}}
+        >
+          {showCompletedTasks ? 'Hide Completed Tasks' : 'Show Completed Tasks'}
+          {showCompletedTasks ? <BsChevronUp className="ms-2" /> : <BsChevronDown className="ms-2" />}
+        </Button>
+
+        {showCompletedTasks && filteredCompletedTasks.length > 0 && (
+          <>
+            <h2 className="fw-bold text-left mb-2 mt-4 roboto-font" style={{ color: '#5E1B89', fontSize: '24px' }}>
+              COMPLETED TASKS
+            </h2>
+            
+            {/* list of completed tasks */}
+            <ListGroup>
+              {filteredCompletedTasks.map((task, index) => (
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }} >
+                  <div className="d-flex align-items-center">
+                    <Form.Check
+                      type="checkbox"
+                      checked={task.done}
+                      onChange={() => handleToggleDone(index, true)}
+                      className="fs-5 me-2 complete-checkbox"
+                    />
+                    <span className={`align-middle ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
+                  </div>
+                  <div>
+                    {task.dueDate && (
+                      <span className="align-middle text-muted fs-6">{format(task.dueDate, 'EEE, dd MMM')}</span>
+                    )}
+                    <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#5E1B89' : '#5E1B89' }}>
+                      {task.important ? <BsStarFill /> : <BsStar />}
+                    </Button>
+                    <Button className="border-0" style={{ fontSize: '16px', backgroundColor: index === completeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s', }} size="sm" onClick={() => handleDelete(index)} 
+                        onMouseEnter={() => completeIsHovered(index)}
+                        onMouseLeave={() => completeIsHovered(null)}>
+                      <BsTrash />
+                    </Button>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </>
+        )}
       </div>
       {contextMenuVisible && (
         <Dropdown
@@ -443,7 +502,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           onHide={() => setContextMenuVisible(false)}
         >
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)} style={{ color: '#d11a2a'}}>
+            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)} style={{ color: '#F4512C'}}>
               Delete
             </Dropdown.Item>
             <Dropdown.Item onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
@@ -458,30 +517,6 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </Dropdown.Menu>
         </Dropdown>
       )}
-
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this task?
-        </Modal.Body>
-        <Modal.Footer>
-        <Button
-            className="text-white fs-6" style={{ backgroundColor:  cancelHovered ? '#8c8c8c' : '#6c757d', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowDeleteModal(false)}
-            onMouseEnter={() => cancelIsHovered(true)}
-            onMouseLeave={() =>  cancelIsHovered(false)}
-          >
-            Cancel
-          </Button>
-          <Button className="text-white fs-6" style={{ backgroundColor:  deleteHovered ? '#e57373' : '#d11a2a', transition: 'background-color 0.3s' }} variant="danger" onClick={confirmDelete}
-           onMouseEnter={() => deleteIsHovered(true)}
-           onMouseLeave={() =>  deleteIsHovered(false)} 
-          >
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 }

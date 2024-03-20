@@ -30,7 +30,7 @@ function Important({ importantTasks }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border-1"
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent">
             <BsSearch />
@@ -60,7 +60,7 @@ function Important({ importantTasks }) {
       {filteredTasks.length > 0 && (
         <ListGroup>
           {filteredTasks.map((task, index) => (
-            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
+            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }} >
             <div className="d-flex align-items-center">
               <span>{task.name}</span>
             </div>
@@ -68,7 +68,7 @@ function Important({ importantTasks }) {
               {task.dueDate && (
                 <span className="align-middle ms-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
               )}
-              <Button variant="link" style={{ color: '#ffc107' }}>
+              <Button variant="link" style={{ color: '#5E1B89' }}>
                 {task.important ? <BsStarFill /> : <BsStar />}
               </Button>
             </div>
