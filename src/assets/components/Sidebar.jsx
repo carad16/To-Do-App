@@ -26,7 +26,7 @@ function Sidebar({ taskCount }) {
         </div>
         <hr className="bg-light mb-1 mt-2 text-left" />
         <div className="d-grid gap-1">
-          <Link to="/tasks" className="hover-link p-2" variant="primary mb-2" size="sm">
+          <Link to="/" className="hover-link p-2" variant="primary mb-2" size="sm">
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <BsHouseDoor className="me-2"/> 
