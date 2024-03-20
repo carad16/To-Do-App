@@ -8,6 +8,7 @@
   padding: 2rem;
   text-align: center;
   font-family: 'Lato', sans-serif;
+  color: '#5E1B89';
 }
 
 .roboto-font {
@@ -100,4 +101,24 @@
 
 .task-input {
   resize: vertical;
+}
+
+.complete-checkbox input[type="checkbox"] {
+  border-color: #F4512C;
+  background-color: #F4512C;
+}
+
+.complete-checkbox .form-check-input[type="checkbox"] {
+  border-radius: 50%;
+  border-color: #F4512C;
+  background-color: #F4512C;
+}
+
+.uncomplete-checkbox input[type="checkbox"] {
+  border-color: #F4512C;
+}
+
+.uncomplete-checkbox .form-check-input[type="checkbox"] {
+  border-radius: 50%;
+  border-color: #F4512C;
 }

@@ -28,8 +28,12 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   const [completeHovered, completeIsHovered] = useState(false);
   const [cancelHovered, cancelIsHovered] = useState(false);
   const [deleteHovered, deleteIsHovered] = useState(false);
+  const [removeHovered, removeIsHovered] = useState(false);
+  const [cancelhovered, cancelisHovered] = useState(false);
+  const [addHovered, addIsHovered] = useState(false); 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [setShowDatePicker] = useState(false);
+  const [showRemoveAllModal, setShowRemoveAllModal] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -76,8 +80,13 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   };
 
   const handleRemoveAllTasks = () => {
+    setShowRemoveAllModal(true);
+  };
+  
+  const confirmRemoveAllTasks = () => {
     setRecentlyDeletedTasks((prevTasks) => [...prevTasks, ...tasks]);
     setTasks([]);
+    setShowRemoveAllModal(false);
   };
 
   const handleContextMenu = (e, index) => {
@@ -242,7 +251,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border-1 mb-3"
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent mb-3">
             <BsSearch />
@@ -264,8 +273,74 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </Dropdown>
         </div>
 
+        <Modal show={showRemoveAllModal} onHide={() => setShowRemoveAllModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Remove All</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to remove all tasks?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor: cancelhovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} onClick={() => setShowRemoveAllModal(false)}
+             onMouseEnter={() => cancelisHovered(true)}
+             onMouseLeave={() => cancelisHovered(false)}>
+              Cancel
+            </Button>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor: removeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} onClick={confirmRemoveAllTasks}
+             onMouseEnter={() => removeIsHovered(true)}
+             onMouseLeave={() => removeIsHovered(false)}>
+              Remove All
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* task form control */}
+        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3 position-relative bottom-0 start-50 translate-middle-x">
+          <Form.Group controlId="taskInput" className="d-flex align-items-center rounded border bg-light p-2">
+            <div className="flex-grow-1 me-2">
+              <Form.Control
+                type="text"
+                placeholder="Add a task"
+                value={task}
+                onChange={handleChange}
+                className="border-0 fs-6"
+                style={{ color: '#5E1B89' }} 
+              />
+            </div>
+            <div className="d-flex align-items-center">
+              <Dropdown>
+                <Dropdown.Toggle variant="transparent" id="dueDateDropdown" className="border-0 d-flex dropdown-toggle">
+                  <BsCalendar3 className="fs-5 icon" />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="custom-menu">
+                  <Dropdown.Item onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleDueDateOption('noDueDate')}>No Due Date</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              {dueDate && (
+                <DatePicker
+                  selected={dueDate}
+                  onChange={(date) => {
+                    setDueDate(date);
+                  }}
+                  placeholderText="Select a due date"
+                  dateFormat="EEE, dd MMM"
+                  className="border-0 rounded p-2 fs-6"
+                />
+              )}
+              <Button variant="primary" type="submit" className="border-0" style={{ backgroundColor: addHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }}
+               onMouseEnter={() => addIsHovered(true)}
+               onMouseLeave={() => addIsHovered(false)}>
+                <BsPlus className="text-white fs-4" />
+              </Button>
+            </div>
+          </Form.Group>
+        </Form>
+
         {(tasks.length === 0 && searchTerm === '') && (
-          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
+          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
             <div>
               <p className="mb-0">No tasks created yet.</p>
             </div>
@@ -273,7 +348,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
         )}
 
         {(searchTerm !== '' && filteredTasks.length === 0) && (
-          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
+          <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
             <div>
               <p className="mb-0">No task found.</p>
             </div>
@@ -285,7 +360,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             {/* list of tasks added */}
             <ListGroup>
               {filteredTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" onContextMenu={(e) => handleContextMenu(e, index, false)}>
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }}  onContextMenu={(e) => handleContextMenu(e, index, false)}>
                   <div className="row w-100">
                     <div className="col mt-1">
                       {editedTaskIndex === index ? (
@@ -298,14 +373,14 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                           />
                         ) : (
                         <div className="d-flex align-items-center">
-                          <input
+                          <Form.Check
                             type="checkbox"
                             checked={task.done}
                             onChange={() => handleToggleDone(index)}
-                            className="fs-5 me-2 form-check-input rounded-circle"
+                            className="fs-5 me-2 uncomplete-checkbox"
                           />
                           <span
-                            className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}
+                            className={`align-middle ${task.done ? 'text-decoration-line-through' : ''}`}
                             onClick={() => handleEditTask(index, task.name, task.dueDate)} 
                           >
                             {task.name}
@@ -332,7 +407,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                         >
                           {task.important ? <BsStarFill /> : <BsStar />}
                         </Button>
-                        <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
+                        <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#F4512C' }} size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}>
                           <BsTrash />
                         </Button>
@@ -365,15 +440,15 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             {/* list of completed tasks */}
             <ListGroup>
               {filteredCompletedTasks.map((task, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
+                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }} >
                   <div className="d-flex align-items-center">
-                    <input
+                    <Form.Check
                       type="checkbox"
                       checked={task.done}
                       onChange={() => handleToggleDone(index, true)}
-                      className="fs-5 me-2 form-check-input rounded-circle"
+                      className="fs-5 me-2 complete-checkbox"
                     />
-                    <span className={`mt-1 ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
+                    <span className={`align-middle ${task.done ? 'text-decoration-line-through' : ''}`}>{task.name}</span>
                   </div>
                   <div>
                     {task.dueDate && (
@@ -382,7 +457,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
-                    <Button className="border-0" style={{ fontSize: '16px', color: completeHovered ? '#ffffff' : '#d11a2a' }} variant="danger" size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => completeIsHovered(true)}
+                    <Button className="border-0" style={{ fontSize: '16px', color: completeHovered ? '#ffffff' : '#F4512C' }} size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => completeIsHovered(true)}
                                 onMouseLeave={() => completeIsHovered(false)}>
                       <BsTrash />
                     </Button>
@@ -392,48 +467,6 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             </ListGroup>
           </>
         )}
-
-        {/* task form control */}
-        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3 position-relative bottom-0 start-50 translate-middle-x">
-          <Form.Group controlId="taskInput" className="d-flex align-items-center rounded border bg-light p-2">
-            <div className="flex-grow-1 me-2">
-              <Form.Control
-                type="text"
-                placeholder="Add a task"
-                value={task}
-                onChange={handleChange}
-                className="border-0 fs-6"
-              />
-            </div>
-            <div className="d-flex align-items-center">
-              <Dropdown>
-                <Dropdown.Toggle variant="transparent" id="dueDateDropdown" className="border-0 d-flex dropdown-toggle">
-                  <BsCalendar3 className="fs-5 icon" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="custom-menu">
-                  <Dropdown.Item onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('noDueDate')}>No Due Date</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-              {dueDate && (
-                <DatePicker
-                  selected={dueDate}
-                  onChange={(date) => {
-                    setDueDate(date);
-                  }}
-                  placeholderText="Select a due date"
-                  dateFormat="EEE, dd MMM"
-                  className="border-0 rounded p-2 fs-6"
-                />
-              )}
-              <Button variant="primary" type="submit" className="border-0" style={{ background: '#5E1B89' }}>
-                <BsPlus className="text-white fs-4" />
-              </Button>
-            </div>
-          </Form.Group>
-        </Form>
       </div>
       {contextMenuVisible && (
         <Dropdown

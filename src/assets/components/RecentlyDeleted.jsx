@@ -36,7 +36,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border-1"
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent">
             <BsSearch />
@@ -76,7 +76,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
       {filteredTasks.length > 0 && (
         <ListGroup>
           {filteredTasks.map((task, index) => (
-            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify">
+            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center task-item text-justify" style={{ color: '#5E1B89' }} >
               <div className="d-flex align-items-center">
                 <span>{task.name}</span>
               </div>
