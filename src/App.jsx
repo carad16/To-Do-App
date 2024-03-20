@@ -38,7 +38,7 @@ function App() {
                 element={<Important importantTasks={importantTasks} />}
               />
               <Route
-                path="/tasks"
+                path="/"
                 element={<Tasks updateTaskCount={updateTaskCount} setImportantTasks={setImportantTasks} setRecentlyDeletedTasks={setRecentlyDeletedTasks} />}
               />
               <Route
