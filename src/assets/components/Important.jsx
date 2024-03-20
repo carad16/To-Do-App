@@ -68,7 +68,7 @@ function Important({ importantTasks }) {
               {task.dueDate && (
                 <span className="align-middle ms-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
               )}
-              <Button variant="link" style={{ color: '#ffc107' }}>
+              <Button variant="link" style={{ color: '#5E1B89' }}>
                 {task.important ? <BsStarFill /> : <BsStar />}
               </Button>
             </div>

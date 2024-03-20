@@ -403,12 +403,13 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                         <Button
                           variant="link"
                           onClick={() => handleToggleImportant(index)}
-                          style={{ color: task.important ? '#ffc107' : '#6c757d' }}
+                          style={{ color: task.important ? '#5E1B89' : '#5E1B89' }}
                         >
                           {task.important ? <BsStarFill /> : <BsStar />}
                         </Button>
-                        <Button className="border-0" style={{ fontSize: '16px', color: isHovered ? '#ffffff' : '#F4512C' }} size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => setIsHovered(true)}
-                                onMouseLeave={() => setIsHovered(false)}>
+                        <Button className="border-0" style={{ fontSize: '16px',   backgroundColor: index === isHovered ? '#FF7F4D' : '#F4512C', }} size="sm" onClick={() => handleDelete(index)}  
+                            onMouseEnter={() => setIsHovered(index)}
+                            onMouseLeave={() => setIsHovered(null)}>
                           <BsTrash />
                         </Button>
                       </div>
@@ -419,6 +420,30 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             </ListGroup>
           </>
         )}
+
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Deletion</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete this task?
+          </Modal.Body>
+          <Modal.Footer>
+          <Button
+              className="text-white fs-6 border-0" style={{ backgroundColor:  cancelHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowDeleteModal(false)}
+              onMouseEnter={() => cancelIsHovered(true)}
+              onMouseLeave={() =>  cancelIsHovered(false)}
+            >
+              Cancel
+            </Button>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor:  deleteHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} variant="danger" onClick={confirmDelete}
+            onMouseEnter={() => deleteIsHovered(true)}
+            onMouseLeave={() =>  deleteIsHovered(false)} 
+            >
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
         {/* toggle button for completed tasks */}
         <Button
@@ -454,11 +479,12 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                     {task.dueDate && (
                       <span className="align-middle text-muted fs-6">{format(task.dueDate, 'EEE, dd MMM')}</span>
                     )}
-                    <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#ffc107' : '#6c757d' }}>
+                    <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#5E1B89' : '#5E1B89' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
-                    <Button className="border-0" style={{ fontSize: '16px', color: completeHovered ? '#ffffff' : '#F4512C' }} size="sm" onClick={() => handleDelete(index)} onMouseEnter={() => completeIsHovered(true)}
-                                onMouseLeave={() => completeIsHovered(false)}>
+                    <Button className="border-0" style={{ fontSize: '16px', backgroundColor: index === completeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s', }} size="sm" onClick={() => handleDelete(index)} 
+                        onMouseEnter={() => completeIsHovered(index)}
+                        onMouseLeave={() => completeIsHovered(null)}>
                       <BsTrash />
                     </Button>
                   </div>
@@ -476,7 +502,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           onHide={() => setContextMenuVisible(false)}
         >
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)} style={{ color: '#d11a2a'}}>
+            <Dropdown.Item onClick={() => handleContextMenuAction('delete', selectedTaskIndex, false)} style={{ color: '#F4512C'}}>
               Delete
             </Dropdown.Item>
             <Dropdown.Item onClick={() => handleContextMenuAction('edit', selectedTaskIndex, false)}>
@@ -491,30 +517,6 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </Dropdown.Menu>
         </Dropdown>
       )}
-
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this task?
-        </Modal.Body>
-        <Modal.Footer>
-        <Button
-            className="text-white fs-6" style={{ backgroundColor:  cancelHovered ? '#8c8c8c' : '#6c757d', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowDeleteModal(false)}
-            onMouseEnter={() => cancelIsHovered(true)}
-            onMouseLeave={() =>  cancelIsHovered(false)}
-          >
-            Cancel
-          </Button>
-          <Button className="text-white fs-6" style={{ backgroundColor:  deleteHovered ? '#e57373' : '#d11a2a', transition: 'background-color 0.3s' }} variant="danger" onClick={confirmDelete}
-           onMouseEnter={() => deleteIsHovered(true)}
-           onMouseLeave={() =>  deleteIsHovered(false)} 
-          >
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 }
