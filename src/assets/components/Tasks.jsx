@@ -91,9 +91,10 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
     if (action === 'delete') {
       handleDelete(index, isCompletedTask);
     } else if (action === 'edit') {
-      const selectedTask = tasks[selectedTaskIndex];
+      const selectedTask = isCompletedTask ? completedTasks[index] : tasks[index];
+      setEditedTaskContent(selectedTask.name);
       setEditedTask({ name: selectedTask.name, dueDate: selectedTask.dueDate });
-      setEditedTaskIndex(selectedTaskIndex);
+      setEditedTaskIndex(index);
     } else if (action === 'complete') {
       handleToggleDone(index, isCompletedTask);
     } else if (action === 'important') {

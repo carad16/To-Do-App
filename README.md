@@ -1,8 +1,16 @@
-# React + Vite
+# To-Do Application/Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a To-Do Application/Website developed and designed by Cara Elyssa Dulay, a 4th year BSIT Student at Polytechnic University of the Philippines
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Following Features:
+- Create To-Do List
+- Show List of To-Dos
+- Edit/Update To-Dos
+- Update To-Do Status (Done/Undone)(If done, task is struckthrough)
+- Delete To-Do with Confirmation Modal
+- Delete All Button
+- Done All Button
+Additional Features:
+- Mark as Important
+- Search Features
+- Add a Due Date
