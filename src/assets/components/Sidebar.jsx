@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import SidebarMenu from 'react-bootstrap-sidebar-menu';
 import { BsStar, BsTrash, BsHouseDoor } from 'react-icons/bs';
@@ -5,6 +6,10 @@ import { Link } from "react-router-dom";
 import logo from '/lexmeet_white.png';
 
 function Sidebar({ taskCount }) {
+
+  Sidebar.propTypes = {
+    taskCount: PropTypes.array.isRequired,
+  };
 
   const sidebarStyle = {
     background: 'linear-gradient(180deg, rgba(94,27,137,1) 0%, rgba(157,113,188,1) 29%, rgba(255,127,77,1) 100%), rgb(94, 27, 137)',
