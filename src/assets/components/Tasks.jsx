@@ -273,7 +273,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </Dropdown>
         </div>
 
-        <Modal show={showRemoveAllModal} onHide={() => setShowRemoveAllModal(false)}>
+        <Modal style={{ color: '#5E1B89' }} show={showRemoveAllModal} onHide={() => setShowRemoveAllModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Confirm Remove All</Modal.Title>
           </Modal.Header>
@@ -427,7 +427,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </>
         )}
 
-        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal style={{ color: '#5E1B89' }} show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Confirm Deletion</Modal.Title>
           </Modal.Header>
@@ -435,7 +435,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             Are you sure you want to delete this task?
           </Modal.Body>
           <Modal.Footer>
-          <Button
+            <Button
               className="text-white fs-6 border-0" style={{ backgroundColor:  cancelHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowDeleteModal(false)}
               onMouseEnter={() => cancelIsHovered(true)}
               onMouseLeave={() =>  cancelIsHovered(false)}

@@ -22,7 +22,7 @@ function App() {
   });
 
   const restoreTask = (task) => {
-    console.log('Restoring Task:', task);
+    //console.log('Restoring Task:', task);
     setTasks([...tasks, task]); 
     setRecentlyDeletedTasks(recentlyDeletedTasks.filter((t) => t !== task));
     localStorage.setItem('tasks', JSON.stringify(recentlyDeletedTasks.filter((t) => t !== task)));
