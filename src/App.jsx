@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   const [taskCount, setTaskCount] = useState(0);
+  const [tasks, setTasks] = useState([]);
   const [importantTasks, setImportantTasks] = useState(() => {
     const storedTasks = localStorage.getItem('importantTasks');
     return storedTasks ? JSON.parse(storedTasks) : [];
@@ -19,6 +20,13 @@ function App() {
     const storedTasks = localStorage.getItem('recentlyDeletedTasks');
     return storedTasks ? JSON.parse(storedTasks) : [];
   });
+
+  const restoreTask = (task) => {
+    console.log('Restoring Task:', task);
+    setTasks([...tasks, task]); 
+    setRecentlyDeletedTasks(recentlyDeletedTasks.filter((t) => t !== task));
+    localStorage.setItem('tasks', JSON.stringify(recentlyDeletedTasks.filter((t) => t !== task)));
+  };
 
   const updateTaskCount = (count) => {
     setTaskCount(count);
@@ -39,11 +47,11 @@ function App() {
               />
               <Route
                 path="/"
-                element={<Tasks updateTaskCount={updateTaskCount} setImportantTasks={setImportantTasks} setRecentlyDeletedTasks={setRecentlyDeletedTasks} />}
+                element={<Tasks updateTaskCount={updateTaskCount} setImportantTasks={setImportantTasks} setRecentlyDeletedTasks={setRecentlyDeletedTasks} setTasks={setTasks} tasks={tasks} />}
               />
               <Route
                 path="/recentlydeleted"
-                element={<RecentlyDeleted recentlyDeletedTasks={recentlyDeletedTasks} setRecentlyDeletedTasks={setRecentlyDeletedTasks} />}
+                element={<RecentlyDeleted recentlyDeletedTasks={recentlyDeletedTasks} setRecentlyDeletedTasks={setRecentlyDeletedTasks} restoreTask={restoreTask} />}
               />
             </Routes>
           </div>

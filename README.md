@@ -10,6 +10,7 @@ Following Features:
 - Delete To-Do with Confirmation Modal
 - Delete All Button
 - Done All Button
+
 Additional Features:
 - Mark as Important
 - Search Features

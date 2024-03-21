@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
-import { ListGroup, InputGroup, Form, Dropdown} from 'react-bootstrap';
+import { ListGroup, InputGroup, Form, Dropdown, Modal, Button} from 'react-bootstrap';
 import { BsSearch, BsThreeDots } from 'react-icons/bs';
 
-function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
+function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restoreTask  }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [taskToRestore, setTaskToRestore] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('recentlyDeletedTasks', JSON.stringify(recentlyDeletedTasks));
@@ -17,9 +19,25 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
     setRecentlyDeletedTasks([]);
   };
 
+  const handleRestoreTask = (task) => {
+    setShowRestoreModal(true);
+    setTaskToRestore(task);
+  };
+
+  const confirmRestoreTask = () => {
+    const updatedRecentlyDeletedTasks = recentlyDeletedTasks.filter((t) => t !== taskToRestore);
+    setRecentlyDeletedTasks(updatedRecentlyDeletedTasks);
+    restoreTask(taskToRestore);
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    const updatedTasks = [...tasks, taskToRestore];
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    setShowRestoreModal(false);
+  };
+
   RecentlyDeleted.propTypes = {
     recentlyDeletedTasks: PropTypes.array.isRequired,
     setRecentlyDeletedTasks: PropTypes.array.isRequired,
+    restoreTask: PropTypes.func.isRequired,
   };
 
   const filteredTasks = recentlyDeletedTasks.filter((task) =>
@@ -84,10 +102,30 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks  }) {
               {task.dueDate && (
                 <span className="align-middle ms-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
               )}
+              <button className="btn btn-primary" onClick={() => handleRestoreTask(task)}>
+                Restore
+              </button>
             </ListGroup.Item>
           ))}
         </ListGroup>
       )}
+
+      <Modal show={showRestoreModal} onHide={() => setShowRestoreModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Restore</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to restore this task?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRestoreModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={confirmRestoreTask}>
+            Restore
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
