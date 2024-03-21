@@ -33,7 +33,7 @@ function Important({ importantTasks }) {
             style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent">
-            <BsSearch />
+            <BsSearch style={{ color: '#5E1B89' }} />
           </InputGroup.Text>
         </InputGroup>
       </div>
@@ -45,7 +45,7 @@ function Important({ importantTasks }) {
       {(searchTerm !== '' && filteredTasks.length === 0) && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
-            <p className="mb-0">No task found.</p>
+            <p style={{ color: '#5E1B89' }} className="mb-0">No task found.</p>
           </div>
         </div>
       )}
@@ -53,7 +53,7 @@ function Important({ importantTasks }) {
       {filteredTasks.length === 0 && searchTerm === '' && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
-            <p className="mb-0">No important tasks.</p>
+            <p style={{ color: '#5E1B89' }} className="mb-0">No important tasks.</p>
           </div>
         </div>
       )}

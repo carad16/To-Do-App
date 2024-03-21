@@ -4,10 +4,13 @@ import { format } from 'date-fns';
 import { ListGroup, InputGroup, Form, Dropdown, Modal, Button} from 'react-bootstrap';
 import { BsSearch, BsThreeDots } from 'react-icons/bs';
 
-function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restoreTask  }) {
+function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [taskToRestore, setTaskToRestore] = useState(null);
+  const [restoreHovered, restoreIsHovered] = useState(false); 
+  const [cancelHovered, cancelIsHovered] = useState(false);
+  const [restorehovered, restoreisHovered] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('recentlyDeletedTasks', JSON.stringify(recentlyDeletedTasks));
@@ -15,25 +18,31 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
 
   const handleClearAll = () => {
     localStorage.removeItem('recentlyDeletedTasks');
-    console.log('Local storage cleared');
+    //console.log('Local storage cleared');
     setRecentlyDeletedTasks([]);
   };
 
-  const handleRestoreTask = (task) => {
+  const handleRestoreTask = (task, index) => {
     setShowRestoreModal(true);
-    setTaskToRestore(task);
+    setTaskToRestore({ task, index });
   };
-
+  
   const confirmRestoreTask = () => {
-    const updatedRecentlyDeletedTasks = recentlyDeletedTasks.filter((t) => t !== taskToRestore);
-    setRecentlyDeletedTasks(updatedRecentlyDeletedTasks);
-    restoreTask(taskToRestore);
+    const { task, index } = taskToRestore;
+  
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    const updatedTasks = [...tasks, taskToRestore];
+    const updatedTasks = [...tasks, task];
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  
+    const updatedRecentlyDeletedTasks = [...recentlyDeletedTasks];
+    updatedRecentlyDeletedTasks.splice(index, 1);
+    setRecentlyDeletedTasks(updatedRecentlyDeletedTasks);
+  
+    localStorage.setItem('recentlyDeletedTasks', JSON.stringify(updatedRecentlyDeletedTasks));
+  
     setShowRestoreModal(false);
   };
-
+  
   RecentlyDeleted.propTypes = {
     recentlyDeletedTasks: PropTypes.array.isRequired,
     setRecentlyDeletedTasks: PropTypes.array.isRequired,
@@ -58,7 +67,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
             style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent">
-            <BsSearch />
+            <BsSearch style={{ color: '#5E1B89' }}/>
           </InputGroup.Text>
         </InputGroup>
       </div>
@@ -69,10 +78,10 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
         </h1>
         <Dropdown>
         <Dropdown.Toggle variant="transparent" id="tasksDropdown">
-            <BsThreeDots className="fs-5 icon" />
+            <BsThreeDots style={{ color: '#5E1B89' }} className="fs-5 icon" />
         </Dropdown.Toggle>
         <Dropdown.Menu>
-            <Dropdown.Item onClick={handleClearAll}>Clear All</Dropdown.Item>
+            <Dropdown.Item style={{ color: '#5E1B89' }} onClick={handleClearAll}>Clear All</Dropdown.Item>
         </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -80,7 +89,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
       {(searchTerm !== '' && filteredTasks.length === 0) && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
-            <p className="mb-0">No task found.</p>
+            <p style={{ color: '#5E1B89' }} className="mb-0">No task found.</p>
           </div>
         </div>
       )}
@@ -88,7 +97,7 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
       {filteredTasks.length === 0 && searchTerm === '' && (
         <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-100">
           <div>
-            <p className="mb-0">No recently deleted tasks.</p>
+            <p style={{ color: '#5E1B89' }} className="mb-0">No recently deleted tasks.</p>
           </div>
         </div>
       )}
@@ -99,18 +108,22 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
               <div className="d-flex align-items-center">
                 <span>{task.name}</span>
               </div>
+              <div>
               {task.dueDate && (
-                <span className="align-middle ms-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
+                <span className="align-middle ms-3 me-3 text-muted">{format(task.dueDate, 'EEE, dd MMM')}</span>
               )}
-              <button className="btn btn-primary" onClick={() => handleRestoreTask(task)}>
+              <button className="border-0 rounded border p-2" style={{ fontSize: '12px', color: 'white', backgroundColor: restoreHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} onClick={() => handleRestoreTask(task)}
+                  onMouseEnter={() => restoreIsHovered(true)}
+                  onMouseLeave={() => restoreIsHovered(false)}>
                 Restore
               </button>
+              </div>
             </ListGroup.Item>
           ))}
         </ListGroup>
       )}
 
-      <Modal show={showRestoreModal} onHide={() => setShowRestoreModal(false)}>
+      <Modal style={{ color: '#5E1B89' }} show={showRestoreModal} onHide={() => setShowRestoreModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Restore</Modal.Title>
         </Modal.Header>
@@ -118,12 +131,19 @@ function RecentlyDeleted({ recentlyDeletedTasks, setRecentlyDeletedTasks, restor
           Are you sure you want to restore this task?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowRestoreModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={confirmRestoreTask}>
-            Restore
-          </Button>
+        <Button
+              className="text-white fs-6 border-0" style={{ backgroundColor:  cancelHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }} variant="secondary" onClick={() => setShowRestoreModal(false)}
+              onMouseEnter={() => cancelIsHovered(true)}
+              onMouseLeave={() =>  cancelIsHovered(false)}
+            >
+              Cancel
+            </Button>
+            <Button className="text-white fs-6 border-0" style={{ backgroundColor:  restorehovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s' }} variant="danger" onClick={confirmRestoreTask}
+              onMouseEnter={() => restoreisHovered(true)}
+              onMouseLeave={() =>  restoreisHovered(false)} 
+            >
+              Restore
+            </Button>
         </Modal.Footer>
       </Modal>
     </div>
