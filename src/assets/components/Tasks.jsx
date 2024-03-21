@@ -31,6 +31,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   const [removeHovered, removeIsHovered] = useState(false);
   const [cancelhovered, cancelisHovered] = useState(false);
   const [addHovered, addIsHovered] = useState(false); 
+  const [editHovered, editIsHovered] = useState(false); 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [setShowDatePicker] = useState(false);
   const [showRemoveAllModal, setShowRemoveAllModal] = useState(false);
@@ -135,10 +136,10 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
     }
   };
 
-  const handleEditTask = (index, content, dueDate) => {
+  const handleEditTask = (index, content) => {
     setEditedTaskIndex(index);
     setEditedTaskContent(content);
-    setEditedTask({ name: content, dueDate: dueDate || null });
+    console.log('Editing task:', index, content);
   };
 
   const handleUpdateTask = (index) => {
@@ -253,7 +254,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
             style={{ fontSize: '18px', color: '#5E1B89' }}
           />
           <InputGroup.Text className="bg-transparent mb-3">
-            <BsSearch />
+            <BsSearch style={{ color: '#5E1B89' }}/>
           </InputGroup.Text>
         </InputGroup>
 
@@ -263,11 +264,11 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
           </h1>
           <Dropdown>
             <Dropdown.Toggle variant="transparent" id="tasksDropdown">
-              <BsThreeDots className="fs-5 icon" />
+              <BsThreeDots style={{ color: '#5E1B89' }} className="fs-5 icon" />
             </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={handleSelectAllTasks}>Done All</Dropdown.Item>
-              <Dropdown.Item onClick={handleRemoveAllTasks}>Remove All</Dropdown.Item>
+            <Dropdown.Menu >
+              <Dropdown.Item style={{ color: '#5E1B89' }} onClick={handleSelectAllTasks}>Done All</Dropdown.Item>
+              <Dropdown.Item style={{ color: '#5E1B89' }} onClick={handleRemoveAllTasks}>Remove All</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </div>
@@ -294,7 +295,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
         </Modal>
 
         {/* task form control */}
-        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3 position-relative bottom-0 start-50 translate-middle-x">
+        <Form onSubmit={handleSubmit} className="bottom-0 mb-3 mt-3">
           <Form.Group controlId="taskInput" className="d-flex align-items-center rounded border bg-light p-2">
             <div className="flex-grow-1 me-2">
               <Form.Control
@@ -306,16 +307,16 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                 style={{ color: '#5E1B89' }} 
               />
             </div>
-            <div className="d-flex align-items-center">
-              <Dropdown>
+            <div className="d-flex align-items-center" style={{ color: '#5E1B89' }} >
+              <Dropdown drop="up" style={{ color: '#5E1B89' }} >
                 <Dropdown.Toggle variant="transparent" id="dueDateDropdown" className="border-0 d-flex dropdown-toggle">
-                  <BsCalendar3 className="fs-5 icon" />
+                  <BsCalendar3 style={{ color: '#5E1B89' }}  className="fs-5 icon" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="custom-menu">
-                  <Dropdown.Item onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDueDateOption('noDueDate')}>No Due Date</Dropdown.Item>
+                  <Dropdown.Item style={{ color: '#5E1B89' }}  onClick={() => handleDueDateOption('today')}>Today</Dropdown.Item>
+                  <Dropdown.Item style={{ color: '#5E1B89' }}  onClick={() => handleDueDateOption('tomorrow')}>Tomorrow</Dropdown.Item>
+                  <Dropdown.Item style={{ color: '#5E1B89' }}  onClick={() => handleDueDateOption('pickDate')}>Pick a Date</Dropdown.Item>
+                  <Dropdown.Item style={{ color: '#5E1B89' }}  onClick={() => handleDueDateOption('noDueDate')}>No Due Date</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               {dueDate && (
@@ -327,6 +328,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                   placeholderText="Select a due date"
                   dateFormat="EEE, dd MMM"
                   className="border-0 rounded p-2 fs-6"
+                  style={{ color: '#5E1B89' }} 
                 />
               )}
               <Button variant="primary" type="submit" className="border-0" style={{ backgroundColor: addHovered ? '#9D71BC' : '#5E1B89', transition: 'background-color 0.3s' }}
@@ -341,7 +343,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
         {(tasks.length === 0 && searchTerm === '') && (
           <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
             <div>
-              <p className="mb-0">No tasks created yet.</p>
+              <p style={{ color: '#5E1B89' }} className="mb-0">No tasks created yet.</p>
             </div>
           </div>
         )}
@@ -349,7 +351,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
         {(searchTerm !== '' && filteredTasks.length === 0) && (
           <div className="notebook-design border rounded p-3 d-flex align-items-center justify-content-center min-vh-50">
             <div>
-              <p className="mb-0">No task found.</p>
+              <p style={{ color: '#5E1B89' }} className="mb-0">No task found.</p>
             </div>
           </div>
         )}    
@@ -387,7 +389,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                         </div>
                       )}
                     </div>
-                    <div className="d-flex col-auto">
+                    <div className="d-flex col-auto align-items-center justify-content-between">
                       <div className="me-5">
                         <DatePicker
                           selected={task.dueDate}
@@ -395,10 +397,10 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                           placeholderText={task.dueDate ? format(task.dueDate, 'EEE, dd MMM') : 'No due date'}
                           dateFormat="EEE, dd MMM"
                           wrapperClassName="date-picker-wrapper"
-                          className="border-0 rounded border p-2 fs-6"
+                          className="border-0 rounded border p-2 fs-6 me-5"
                         />
                       </div>
-                      <div className="d-flex align-items-center position-absolute top-50 end-0 translate-middle-y me-3">
+                      <div className="d-flex align-items-center me-3 position-absolute top-50 end-0 translate-middle-y">
                         <Button
                           variant="link"
                           onClick={() => handleToggleImportant(index)}
@@ -406,7 +408,12 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                         >
                           {task.important ? <BsStarFill /> : <BsStar />}
                         </Button>
-                        <Button className="border-0" style={{ fontSize: '16px',   backgroundColor: index === isHovered ? '#FF7F4D' : '#F4512C', }} size="sm" onClick={() => handleDelete(index)}  
+                        <Button className="border-0 me-2" style={{ fontSize: '13px', backgroundColor: index === editHovered ? '#9D71BC' : '#5E1B89', }} size="sm" onClick={() => handleEditTask(index, task.name)}  
+                            onMouseEnter={() => editIsHovered(index)}
+                            onMouseLeave={() => editIsHovered(null)}>
+                          Edit
+                        </Button>
+                        <Button className="border-0" style={{ fontSize: '18px', backgroundColor: index === isHovered ? '#FF7F4D' : '#F4512C', }} size="sm" onClick={() => handleDelete(index)}  
                             onMouseEnter={() => setIsHovered(index)}
                             onMouseLeave={() => setIsHovered(null)}>
                           <BsTrash />
@@ -481,7 +488,7 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                     <Button variant="link" onClick={() => handleToggleImportant(index, true)} style={{ color: task.important ? '#5E1B89' : '#5E1B89' }}>
                       {task.important ? <BsStarFill /> : <BsStar />}
                     </Button>
-                    <Button className="border-0" style={{ fontSize: '16px', backgroundColor: index === completeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s', }} size="sm" onClick={() => handleDelete(index)} 
+                    <Button className="border-0" style={{ fontSize: '18px', backgroundColor: index === completeHovered ? '#FF7F4D' : '#F4512C', transition: 'background-color 0.3s', }} size="sm" onClick={() => handleDelete(index)} 
                         onMouseEnter={() => completeIsHovered(index)}
                         onMouseLeave={() => completeIsHovered(null)}>
                       <BsTrash />
