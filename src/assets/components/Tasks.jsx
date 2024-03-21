@@ -137,26 +137,23 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
   };
 
   const handleEditTask = (index, content) => {
-    setEditedTaskIndex(index);
-    setEditedTaskContent(content);
-    console.log('Editing task:', index, content);
+    if (editedTaskIndex === index) {
+      handleUpdateTask(index); 
+    } else {
+      setEditedTaskIndex(index);
+      setEditedTaskContent(content);
+      //console.log('Editing task:', index, content);
+    }
   };
 
   const handleUpdateTask = (index) => {
-    if (editedTaskContent.trim() !== '') {
+    if (editedTaskContent.trim() !== '' && editedTaskContent !== tasks[index].name) {
       const updatedTasks = [...tasks];
-      updatedTasks[index].name = editedTaskContent;
-      if (editedTask.dueDate === 'noDueDate') {
-        updatedTasks[index].dueDate = null; 
-      } else {
-        updatedTasks[index].dueDate = editedTask.dueDate; 
-      }
       setTasks(updatedTasks);
-      setEditedTaskIndex(null);
     } else {
       setEditedTaskContent(tasks[index].name);
-      setEditedTaskIndex(null);
     }
+    setEditedTaskIndex(null);
   };
 
   const handleUpdateTaskDueDate = (index, date) => {
@@ -365,14 +362,14 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                   <div className="row w-100">
                     <div className="col mt-1">
                       {editedTaskIndex === index ? (
-                          <Form.Control
-                            type="text"
-                            value={editedTaskContent}
-                            onChange={(e) => setEditedTaskContent(e.target.value)}
-                            onBlur={() => handleUpdateTask(index)}
-                            className="w-100 task-edit-form"
-                          />
-                        ) : (
+                        <Form.Control
+                          type="text"
+                          value={editedTaskContent}
+                          onChange={(e) => setEditedTaskContent(e.target.value)}
+                          onBlur={() => handleUpdateTask(index)}
+                          className="w-100 task-edit-form"
+                        />
+                      ) : (
                         <div className="d-flex align-items-center">
                           <Form.Check
                             type="checkbox"
@@ -382,7 +379,6 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                           />
                           <span
                             className={`align-middle ${task.done ? 'text-decoration-line-through' : ''}`}
-                            onClick={() => handleEditTask(index, task.name, task.dueDate)} 
                           >
                             {task.name}
                           </span>
@@ -408,10 +404,10 @@ function Tasks({ updateTaskCount, setImportantTasks, setRecentlyDeletedTasks }) 
                         >
                           {task.important ? <BsStarFill /> : <BsStar />}
                         </Button>
-                        <Button className="border-0 me-2" style={{ fontSize: '13px', backgroundColor: index === editHovered ? '#9D71BC' : '#5E1B89', }} size="sm" onClick={() => handleEditTask(index, task.name)}  
+                        <Button className="context-menu border-0 me-2" style={{ fontSize: '13px', backgroundColor: index === editHovered ? '#9D71BC' : '#5E1B89', }} size="sm" onClick={() => handleEditTask(index, task.name)}  
                             onMouseEnter={() => editIsHovered(index)}
                             onMouseLeave={() => editIsHovered(null)}>
-                          Edit
+                          {editedTaskIndex === index ? 'Save' : 'Edit'}
                         </Button>
                         <Button className="border-0" style={{ fontSize: '18px', backgroundColor: index === isHovered ? '#FF7F4D' : '#F4512C', }} size="sm" onClick={() => handleDelete(index)}  
                             onMouseEnter={() => setIsHovered(index)}
